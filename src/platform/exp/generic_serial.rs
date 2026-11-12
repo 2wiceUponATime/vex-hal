@@ -16,7 +16,11 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceGenericSerialWriteFree(device: V5_DeviceT) -> i32;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericSerialTransmit(device: V5_DeviceT, buffer: *const u8, length: i32) -> i32;
+    0x000 => pub fn vexDeviceGenericSerialTransmit(
+        device: V5_DeviceT,
+        buffer: *const u8,
+        length: i32,
+    ) -> i32;
     #[cfg(any())]
     0x000 => pub fn vexDeviceGenericSerialReadChar(device: V5_DeviceT) -> i32;
     #[cfg(any())]
@@ -24,7 +28,11 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceGenericSerialReceiveAvail(device: V5_DeviceT) -> i32;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericSerialReceive(device: V5_DeviceT, buffer: *mut u8, length: i32) -> i32;
+    0x000 => pub fn vexDeviceGenericSerialReceive(
+        device: V5_DeviceT,
+        buffer: *mut u8,
+        length: i32,
+    ) -> i32;
     #[cfg(any())]
     0x000 => pub fn vexDeviceGenericSerialFlush(device: V5_DeviceT);
 }

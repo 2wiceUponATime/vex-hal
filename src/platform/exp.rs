@@ -1,4 +1,4 @@
-use super::jump_table;
+use super::{c_enum, jump_table};
 
 /// Handle to an opaque [`V5_Device`].
 #[allow(non_camel_case_types)]
@@ -36,10 +36,33 @@ pub mod task;
 pub mod touch;
 pub mod vision;
 
+pub use abs_enc::*;
+pub use adi::*;
+pub use ai_vision::*;
+pub use arm::*;
+pub use battery::*;
+pub use competition::*;
+pub use controller::*;
+pub use device::*;
+pub use display::*;
+pub use distance::*;
+pub use file::*;
+pub use generic_radio::*;
+pub use generic_serial::*;
+pub use gps::*;
+pub use imu::*;
+pub use led::*;
+pub use light_tower::*;
+pub use magnet::*;
 pub use motor::*;
+pub use optical::*;
+pub use pneumatic::*;
+pub use range::*;
 pub use serial::*;
 pub use system::*;
 pub use task::*;
+pub use touch::*;
+pub use vision::*;
 
 pub const JUMP_TABLE_START: usize = 0x301fc000;
 

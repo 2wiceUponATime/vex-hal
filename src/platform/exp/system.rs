@@ -2,6 +2,12 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
+//! VEXos System Functions
+
+use core::ffi::c_void;
+
+use crate::platform::JUMP_TABLE_START;
+
 use super::jump_table;
 
 #[repr(C)]
@@ -29,13 +35,8 @@ pub struct date {
 }
 
 jump_table! {
-    /// special use only ! Talk to James.
-    #[cfg(any())]
-    0x000 => pub fn vexScratchMemoryPtr(ptr: *mut *mut core::ffi::c_void) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexScratchMemoryLock() -> bool;
-    #[cfg(any())]
-    0x000 => pub fn vexScratchMemoryUnlock();
+    0x998 => pub fn vexScratchMemoryLock() -> bool;
+    0x99c => pub fn vexScratchMemoryUnlock();
     /// Returns the time since program start with millisecond precision.
     #[cfg(any())]
     0x000 => pub fn vexSystemTimeGet() -> u32;
@@ -70,7 +71,10 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexSystemTimerClearInterrupt();
     #[cfg(any())]
-    0x000 => pub fn vexSystemTimerReinitForRtos(priority: u32, handler: unsafe extern "C" fn(data: *mut c_void)) -> i32;
+    0x000 => pub fn vexSystemTimerReinitForRtos(
+        priority: u32,
+        handler: unsafe extern "C" fn(data: *mut c_void),
+    ) -> i32;
     #[cfg(any())]
     0x000 => pub fn vexSystemApplicationIRQHandler(ulICCIAR: u32);
     #[cfg(any())]
@@ -91,4 +95,21 @@ jump_table! {
     0x000 => pub fn vexSystemDataAbortInterrupt();
     #[cfg(any())]
     0x000 => pub fn vexSystemPrefetchAbortInterrupt();
+}
+
+/// special use only ! Talk to James.
+#[allow(non_snake_case)]
+pub unsafe fn vexScratchMemoryPtr(ptr: *mut *mut c_void) -> i32 {
+    if ptr.is_null() {
+        return 0;
+    }
+    let size = unsafe { core::ptr::read_volatile((JUMP_TABLE_START + 0x1c) as *const i32) };
+    unsafe {
+        *ptr = if size > 0 {
+            core::ptr::read_volatile((JUMP_TABLE_START + 0x18) as *const *mut c_void)
+        } else {
+            core::ptr::null_mut()
+        };
+    }
+    size
 }

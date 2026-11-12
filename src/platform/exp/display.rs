@@ -80,7 +80,12 @@ jump_table! {
     /// - `oBuf` must point to an initialized [`v5_image`] struct or null.
     /// - `(*oBuf).data` must point to a mutable allocated image buffer that is at least `maxw * maxh * 4` bytes long or be null.
     #[cfg(any())]
-    0x000 => pub fn vexImageBmpRead(ibuf: *const u8, oBuf: *mut v5_image, maxw: u32, maxh: u32) -> u32;
+    0x000 => pub fn vexImageBmpRead(
+        ibuf: *const u8,
+        oBuf: *mut v5_image,
+        maxw: u32,
+        maxh: u32,
+    ) -> u32;
     /// Decodes a PNG file passed to `ibuf` into a buffer of pixels that can be drawn to the display. This function uses
     /// `libpng` internally to decode the file's contents.
     ///
@@ -102,7 +107,13 @@ jump_table! {
     /// - `oBuf` must point to an initialized [`v5_image`] struct or null.
     /// - `(*oBuf).data` must point to a mutable allocated image buffer that is at least `maxw * maxh * 4` bytes long or be null.
     #[cfg(any())]
-    0x000 => pub fn vexImagePngRead(ibuf: *const u8, oBuf: *mut v5_image, maxw: u32, maxh: u32, ibuflen: u32) -> u32;
+    0x000 => pub fn vexImagePngRead(
+        ibuf: *const u8,
+        oBuf: *mut v5_image,
+        maxw: u32,
+        maxh: u32,
+        ibuflen: u32,
+    ) -> u32;
     /// Draws a string of text to the display at a given line.
     ///
     /// Uses the current foreground color for the text itself, and the current background color if `bOpaque` is `true`.
@@ -117,12 +128,20 @@ jump_table! {
     ///
     /// Uses the current foreground color as the text color.
     #[cfg(any())]
-    0x000 => pub fn vexDisplayVCenteredString(nLineNumber: i32, format: *const c_char, args: VaList);
+    0x000 => pub fn vexDisplayVCenteredString(
+        nLineNumber: i32,
+        format: *const c_char,
+        args: VaList,
+    );
     /// Draws a string of large-sized, center-justified text to the display at a given line.
     ///
     /// Uses the current foreground color as the text color.
     #[cfg(any())]
-    0x000 => pub fn vexDisplayVBigCenteredString(nLineNumber: i32, format: *const c_char, args: VaList);
+    0x000 => pub fn vexDisplayVBigCenteredString(
+        nLineNumber: i32,
+        format: *const c_char,
+        args: VaList,
+    );
     /// Moves a rectangular region of the screen `nLines` pixels upwards, without affecting
     /// portions of the screen outside the specified scroll region.
     ///
@@ -145,7 +164,14 @@ jump_table! {
     /// to write to, the pointer to your image buffer, and the stride (or the number of u32
     /// pixels in your buffer per 1 row).
     #[cfg(any())]
-    0x000 => pub fn vexDisplayCopyRect(x1: i32, y1: i32, x2: i32, y2: i32, pSrc: *mut u32, srcStride: i32);
+    0x000 => pub fn vexDisplayCopyRect(
+        x1: i32,
+        y1: i32,
+        x2: i32,
+        y2: i32,
+        pSrc: *mut u32,
+        srcStride: i32,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDisplayPixelSet(x: u32, y: u32);
     #[cfg(any())]
@@ -169,13 +195,35 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDisplayClipRegionSet(x1: i32, y1: i32, x2: i32, y2: i32);
     #[cfg(any())]
-    0x000 => pub fn vexDisplayClipRegionSetWithIndex(index: i32, x1: i32, y1: i32, x2: i32, y2: i32);
+    0x000 => pub fn vexDisplayClipRegionSetWithIndex(
+        index: i32,
+        x1: i32,
+        y1: i32,
+        x2: i32,
+        y2: i32,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDisplayVPrintf(xpos: i32, ypos: i32, bOpaque: i32, format: *const c_char, args: VaList);
+    0x000 => pub fn vexDisplayVPrintf(
+        xpos: i32,
+        ypos: i32,
+        bOpaque: i32,
+        format: *const c_char,
+        args: VaList,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDisplayVStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
     #[cfg(any())]
-    0x000 => pub fn vexDisplayVBigStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
+    0x000 => pub fn vexDisplayVBigStringAt(
+        xpos: i32,
+        ypos: i32,
+        format: *const c_char,
+        args: VaList,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDisplayVSmallStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
+    0x000 => pub fn vexDisplayVSmallStringAt(
+        xpos: i32,
+        ypos: i32,
+        format: *const c_char,
+        args: VaList,
+    );
 }

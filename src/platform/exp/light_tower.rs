@@ -8,7 +8,13 @@ use super::jump_table;
 
 jump_table! {
     #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerBlinkSet(device: V5_DeviceT, select: u8, mask: u8, onTime: i32, offTime: i32);
+    0x000 => pub fn vexDeviceLightTowerBlinkSet(
+        device: V5_DeviceT,
+        select: u8,
+        mask: u8,
+        onTime: i32,
+        offTime: i32,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceLightTowerColorSet(device: V5_DeviceT, color_id: u32, value: u32);
     #[cfg(any())]

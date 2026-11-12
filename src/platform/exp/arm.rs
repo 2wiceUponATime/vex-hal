@@ -8,23 +8,71 @@ use super::jump_table;
 
 jump_table! {
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmMoveTipCommandLinearAdv(device: V5_DeviceT, position: *mut V5_DeviceArmTipPosition, j6_rotation: c_double, j6_velocity: u16, relative: bool);
+    0x000 => pub fn vexDeviceArmMoveTipCommandLinearAdv(
+        device: V5_DeviceT,
+        position: *mut V5_DeviceArmTipPosition,
+        j6_rotation: c_double,
+        j6_velocity: u16,
+        relative: bool,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmMoveTipCommandJointAdv(device: V5_DeviceT, position: *mut V5_DeviceArmTipPosition, j6_rotation: c_double, j6_velocity: u16, relative: bool);
+    0x000 => pub fn vexDeviceArmMoveTipCommandJointAdv(
+        device: V5_DeviceT,
+        position: *mut V5_DeviceArmTipPosition,
+        j6_rotation: c_double,
+        j6_velocity: u16,
+        relative: bool,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmTipPositionGetAdv(device: V5_DeviceT, position: *mut V5_DeviceArmTipPosition);
+    0x000 => pub fn vexDeviceArmTipPositionGetAdv(
+        device: V5_DeviceT,
+        position: *mut V5_DeviceArmTipPosition,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmPoseSet(device: V5_DeviceT, pose: u8, velocity: u16);
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmMoveTipCommandLinear(device: V5_DeviceT, x: i32, y: i32, z: i32, pose: u8, velocity: u16, rotation: c_double, rot_velocity: u16, relative: bool);
+    0x000 => pub fn vexDeviceArmMoveTipCommandLinear(
+        device: V5_DeviceT,
+        x: i32,
+        y: i32,
+        z: i32,
+        pose: u8,
+        velocity: u16,
+        rotation: c_double,
+        rot_velocity: u16,
+        relative: bool,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmMoveTipCommandJoint(device: V5_DeviceT, x: i32, y: i32, z: i32, pose: u8, velocity: u16, rotation: c_double, rot_velocity: u16, relative: bool);
+    0x000 => pub fn vexDeviceArmMoveTipCommandJoint(
+        device: V5_DeviceT,
+        x: i32,
+        y: i32,
+        z: i32,
+        pose: u8,
+        velocity: u16,
+        rotation: c_double,
+        rot_velocity: u16,
+        relative: bool,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmMoveJointsCommand(device: V5_DeviceT, positions: *mut c_double, velocities: *mut u16, j6_rotation: c_double, j6_velocity: u16, j7_volts: c_double, j7_timeout: u16, j7_i_limit: u16, relative: bool);
+    0x000 => pub fn vexDeviceArmMoveJointsCommand(
+        device: V5_DeviceT,
+        positions: *mut c_double,
+        velocities: *mut u16,
+        j6_rotation: c_double,
+        j6_velocity: u16,
+        j7_volts: c_double,
+        j7_timeout: u16,
+        j7_i_limit: u16,
+        relative: bool,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmSpinJoints(device: V5_DeviceT, velocities: *mut c_double);
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmSetJointPositions(device: V5_DeviceT, new_positions: *mut c_double);
+    0x000 => pub fn vexDeviceArmSetJointPositions(
+        device: V5_DeviceT,
+        new_positions: *mut c_double,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmPickUpCommand(device: V5_DeviceT);
     #[cfg(any())]
@@ -36,7 +84,11 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmEnableProfiler(device: V5_DeviceT, enable: u8);
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmProfilerVelocitySet(device: V5_DeviceT, linear_velocity: u16, joint_velocity: u16);
+    0x000 => pub fn vexDeviceArmProfilerVelocitySet(
+        device: V5_DeviceT,
+        linear_velocity: u16,
+        joint_velocity: u16,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmSaveZeroValues(device: V5_DeviceT);
     #[cfg(any())]
@@ -46,9 +98,19 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmBootload(device: V5_DeviceT);
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmTipPositionGet(device: V5_DeviceT, x: *mut i32, y: *mut i32, z: *mut i32);
+    0x000 => pub fn vexDeviceArmTipPositionGet(
+        device: V5_DeviceT,
+        x: *mut i32,
+        y: *mut i32,
+        z: *mut i32,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceArmJointInfoGet(device: V5_DeviceT, positions: *mut c_double, velocities: *mut c_double, currents: *mut i32);
+    0x000 => pub fn vexDeviceArmJointInfoGet(
+        device: V5_DeviceT,
+        positions: *mut c_double,
+        velocities: *mut c_double,
+        currents: *mut i32,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceArmJ6PositionGet(device: V5_DeviceT) -> c_double;
     #[cfg(any())]

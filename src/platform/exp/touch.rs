@@ -8,7 +8,9 @@ use super::jump_table;
 
 jump_table! {
     #[cfg(any())]
-    0x000 => pub fn vexTouchUserCallbackSet(callback: unsafe extern "system" fn(V5_TouchEvent, i32, i32));
+    0x000 => pub fn vexTouchUserCallbackSet(
+        callback: unsafe extern "C" fn(V5_TouchEvent, i32, i32),
+    );
     #[cfg(any())]
     0x000 => pub fn vexTouchDataGet(status: *mut V5_TouchStatus);
 }

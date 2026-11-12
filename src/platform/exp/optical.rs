@@ -30,7 +30,10 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceOpticalModeGet(device: V5_DeviceT) -> u32;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceOpticalGestureGet(device: V5_DeviceT, pData: *mut V5_DeviceOpticalGesture) -> u32;
+    0x000 => pub fn vexDeviceOpticalGestureGet(
+        device: V5_DeviceT,
+        pData: *mut V5_DeviceOpticalGesture,
+    ) -> u32;
     #[cfg(any())]
     0x000 => pub fn vexDeviceOpticalGestureEnable(device: V5_DeviceT);
     #[cfg(any())]

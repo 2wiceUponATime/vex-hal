@@ -18,7 +18,10 @@ jump_table! {
     0x000 => pub fn vexDeviceImuDegreesGet(device: V5_DeviceT) -> c_double;
     /// Returns quaternion defined by the IMU's rotation.
     #[cfg(any())]
-    0x000 => pub fn vexDeviceImuQuaternionGet(device: V5_DeviceT, data: *mut V5_DeviceImuQuaternion);
+    0x000 => pub fn vexDeviceImuQuaternionGet(
+        device: V5_DeviceT,
+        data: *mut V5_DeviceImuQuaternion,
+    );
     /// Returns the 3-axis euler angles of the IMU bounded from -180 to 180 degrees.
     #[cfg(any())]
     0x000 => pub fn vexDeviceImuAttitudeGet(device: V5_DeviceT, data: *mut V5_DeviceImuAttitude);

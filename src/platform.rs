@@ -22,7 +22,8 @@ macro_rules! jump_table {
     {
         $(
             $(#[$attr:meta])*
-            $offset:literal => $vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)?;
+            $offset:literal
+                => $vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)?;
         )*
     } => {
         $(
@@ -43,6 +44,35 @@ macro_rules! jump_table {
 }
 
 #[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
-use jump_table;
+macro_rules! c_enum {
+    {
+        $(#[$meta:meta])*
+        $vis:vis struct $name:ident: $inner:ty {
+            $($variant:ident = $value:expr),+ $(,)?
+        }
+    } => {
+        #[repr(transparent)]
+        #[derive(Default, Clone, Copy, PartialEq, Eq)]
+        $(#[$meta])*
+        $vis struct $name($inner);
+
+        #[allow(non_upper_case_globals)]
+        impl $name {
+            $(pub const $variant: Self = Self($value);)+
+        }
+
+        impl ::core::fmt::Debug for $name {
+            fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                match *self {
+                    $(Self::$variant => f.write_str(stringify!($variant)),)+
+                    Self(i) => f.debug_tuple(stringify!($name)).field(&i).finish(),
+                }
+            }
+        }
+    };
+}
+
+#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+use {c_enum, jump_table};
 
 pub const STDIO_CHANNEL: u32 = 1;

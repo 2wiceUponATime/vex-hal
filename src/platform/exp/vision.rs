@@ -14,11 +14,22 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceVisionObjectCountGet(device: V5_DeviceT) -> i32;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceVisionObjectGet(device: V5_DeviceT, index: u32, object: *mut V5_DeviceVisionObject) -> i32;
+    0x000 => pub fn vexDeviceVisionObjectGet(
+        device: V5_DeviceT,
+        index: u32,
+        object: *mut V5_DeviceVisionObject,
+    ) -> i32;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceVisionSignatureSet(device: V5_DeviceT, signature: *mut V5_DeviceVisionSignature);
+    0x000 => pub fn vexDeviceVisionSignatureSet(
+        device: V5_DeviceT,
+        signature: *mut V5_DeviceVisionSignature,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceVisionSignatureGet(device: V5_DeviceT, id: u32, signature: *mut V5_DeviceVisionSignature) -> bool;
+    0x000 => pub fn vexDeviceVisionSignatureGet(
+        device: V5_DeviceT,
+        id: u32,
+        signature: *mut V5_DeviceVisionSignature,
+    ) -> bool;
     #[cfg(any())]
     0x000 => pub fn vexDeviceVisionBrightnessSet(device: V5_DeviceT, percent: u8);
     #[cfg(any())]

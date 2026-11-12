@@ -10,7 +10,11 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexFileMountSD() -> FRESULT;
     #[cfg(any())]
-    0x000 => pub fn vexFileDirectoryGet(path: *const c_char, buffer: *mut c_char, len: u32) -> FRESULT;
+    0x000 => pub fn vexFileDirectoryGet(
+        path: *const c_char,
+        buffer: *mut c_char,
+        len: u32,
+    ) -> FRESULT;
     #[cfg(any())]
     0x000 => pub fn vexFileOpen(filename: *const c_char, mode: *const c_char) -> *mut FIL;
     #[cfg(any())]

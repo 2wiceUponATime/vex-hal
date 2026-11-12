@@ -14,9 +14,16 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceGpsDegreesGet(device: V5_DeviceT) -> c_double;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceGpsQuaternionGet(device: V5_DeviceT, data: *mut V5_DeviceGpsQuaternion);
+    0x000 => pub fn vexDeviceGpsQuaternionGet(
+        device: V5_DeviceT,
+        data: *mut V5_DeviceGpsQuaternion,
+    );
     #[cfg(any())]
-    0x000 => pub fn vexDeviceGpsAttitudeGet(device: V5_DeviceT, data: *mut V5_DeviceGpsAttitude, bRaw: bool);
+    0x000 => pub fn vexDeviceGpsAttitudeGet(
+        device: V5_DeviceT,
+        data: *mut V5_DeviceGpsAttitude,
+        bRaw: bool,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceGpsRawGyroGet(device: V5_DeviceT, data: *mut V5_DeviceGpsRaw);
     #[cfg(any())]
@@ -32,13 +39,22 @@ jump_table! {
     #[cfg(any())]
     0x000 => pub fn vexDeviceGpsOriginSet(device: V5_DeviceT, ox: c_double, oy: c_double);
     #[cfg(any())]
-    0x000 => pub fn vexDeviceGpsOriginGet(device: V5_DeviceT, ox: *mut c_double, oy: *mut c_double);
+    0x000 => pub fn vexDeviceGpsOriginGet(
+        device: V5_DeviceT,
+        ox: *mut c_double,
+        oy: *mut c_double,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceGpsRotationSet(device: V5_DeviceT, value: c_double);
     #[cfg(any())]
     0x000 => pub fn vexDeviceGpsRotationGet(device: V5_DeviceT) -> c_double;
     #[cfg(any())]
-    0x000 => pub fn vexDeviceGpsInitialPositionSet(device: V5_DeviceT, initial_x: c_double, initial_y: c_double, initial_rotation: c_double);
+    0x000 => pub fn vexDeviceGpsInitialPositionSet(
+        device: V5_DeviceT,
+        initial_x: c_double,
+        initial_y: c_double,
+        initial_rotation: c_double,
+    );
     #[cfg(any())]
     0x000 => pub fn vexDeviceGpsErrorGet(device: V5_DeviceT) -> c_double;
 }
