@@ -4,6 +4,7 @@ use core::panic::PanicInfo;
 pub use vex_hal_macros::main;
 
 mod allocator;
+pub mod io;
 pub mod platform;
 pub mod thread;
 
@@ -98,6 +99,7 @@ unsafe extern "C" fn start() -> core::ffi::c_int {
 }
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{info}");
     platform::exit();
 }

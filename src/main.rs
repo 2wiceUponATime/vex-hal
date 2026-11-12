@@ -1,15 +1,12 @@
 #![no_std]
 #![no_main]
 
-use vex_hal::{
-    self as _,
-    platform::{STDIO_CHANNEL, vexSerialWriteBuffer},
-};
+use vex_hal::{platform::vexTaskSleep, println};
 
 #[vex_hal::main]
 fn main() {
-    let string = "Hello, World!";
-    unsafe {
-        vexSerialWriteBuffer(STDIO_CHANNEL, string.as_ptr(), string.len() as u32);
+    println!("Hello, World!");
+    loop {
+        unsafe { vexTaskSleep(1000) };
     }
 }
