@@ -4,7 +4,7 @@
 
 //! Brain Display
 
-use super::jump_table;
+use crate::platform::jump_table;
 
 jump_table! {
     /// Sets the color (encoded as RGB8) used for all future non-erasing display draws.

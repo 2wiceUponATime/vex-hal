@@ -48,7 +48,10 @@ macro_rules! c_enum {
     {
         $(#[$meta:meta])*
         $vis:vis struct $name:ident: $inner:ty {
-            $($variant:ident = $value:expr),+ $(,)?
+            $(
+                $(#[$variant_meta:meta])*
+                $variant:ident = $value:expr
+            ),+ $(,)?
         }
     } => {
         #[repr(transparent)]
@@ -58,7 +61,10 @@ macro_rules! c_enum {
 
         #[allow(non_upper_case_globals)]
         impl $name {
-            $(pub const $variant: Self = Self($value);)+
+            $(
+                $(#[$variant_meta])*
+                pub const $variant: Self = Self($value);
+            )+
         }
 
         impl ::core::fmt::Debug for $name {

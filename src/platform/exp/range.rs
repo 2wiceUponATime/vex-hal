@@ -6,7 +6,7 @@
 //!
 //! This sensor is not sold by VEX.
 
-use super::jump_table;
+use crate::platform::jump_table;
 
 jump_table! {
     /// Rangefinder/Lidar - actual API to be determined

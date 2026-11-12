@@ -1,45 +1,100 @@
-// SPDX-FileCopyrightText: 2025 vexide
-// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-FileCopyrightText = 2025 vexide
+// SPDX-FileCopyrightText = 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
 //! V5 Smart Devices
 
-use super::jump_table;
+use core::ffi::{c_int, c_uchar};
+
+use crate::platform::{V5_DeviceT, c_enum, jump_table};
+
+c_enum! {
+    #[allow(non_camel_case_types)]
+    pub struct V5_DeviceType: c_uchar {
+        /// No device connected
+        kDeviceTypeNoSensor = 0,
+        /// V5 Smart Motor
+        kDeviceTypeMotorSensor = 2,
+        /// Unknown use (possibly unreleased hardware)
+        kDeviceTypeLedSensor = 3,
+        /// Rotation Sensor
+        kDeviceTypeAbsEncSensor = 4,
+        /// V5 Motor CR (unknown use)
+        kDeviceTypeCrMotorSensor = 5,
+        /// Inertial Sensor
+        kDeviceTypeImuSensor = 6,
+        /// Distance Sensor
+        kDeviceTypeDistanceSensor = 7,
+        /// Radio
+        kDeviceTypeRadioSensor = 8,
+        /// Master Controller
+        kDeviceTypeTetherSensor = 9,
+        /// Brain
+        kDeviceTypeBrainSensor = 10,
+        /// Vision Sensor
+        kDeviceTypeVisionSensor = 11,
+        /// ADI
+        kDeviceTypeAdiSensor = 12,
+        /// Partner Controller
+        kDeviceTypeRes1Sensor = 13,
+        /// Battery
+        kDeviceTypeRes2Sensor = 14,
+        /// Solenoid (unknown use)
+        kDeviceTypeRes3Sensor = 15,
+        /// Optical Sensor
+        kDeviceTypeOpticalSensor = 16,
+        /// Electromagnet
+        kDeviceTypeMagnetSensor = 17,
+        /// GPS
+        kDeviceTypeGpsSensor = 20,
+        /// AI Stereo Camera
+        kDeviceTypeAicameraSensor = 26,
+        /// CTE Workcell Light Tower
+        kDeviceTypeLightTowerSensor = 27,
+        /// CTE Workcell Arm
+        kDeviceTypeArmDevice = 28,
+        /// AI Vision Sensor
+        kDeviceTypeAiVisionSensor = 29,
+        /// CTE Workcell Pneumatics
+        kDeviceTypePneumaticSensor = 30,
+        // All of these are probably just unreleased or beta hardware...
+        kDeviceTypeBumperSensor = 0x40,
+        kDeviceTypeGyroSensor = 0x46,
+        kDeviceTypeSonarSensor = 0x47,
+        kDeviceTypeGenericSensor = 128,
+        /// Generic Serial
+        kDeviceTypeGenericSerial = 129,
+        /// Unknown use
+        kDeviceTypeUndefinedSensor = 255,
+    }
+}
 
 jump_table! {
     /// Get the number of device ports currently present on this system.
     ///
     /// As of VEXos 1.1.4, this number is the constant `23`.
-    #[cfg(any())]
-    0x000 => pub fn vexDevicesGetNumber() -> u32;
+    0x190 => pub fn vexDevicesGetNumber() -> u32;
     /// Get the number of devices of a specific type plugged into the brain.
-    #[cfg(any())]
-    0x000 => pub fn vexDevicesGetNumberByType(device_type: V5_DeviceType) -> u32;
+    0x194 => pub fn vexDevicesGetNumberByType(device_type: V5_DeviceType) -> u32;
     /// Get a buffer of all devices on the brain.
-    #[cfg(any())]
-    0x000 => pub fn vexDevicesGet() -> V5_DeviceT;
+    0x198 => pub fn vexDevicesGet() -> V5_DeviceT;
     /// Get a handle to a device plugged into the specified port index.
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGetByIndex(index: u32) -> V5_DeviceT;
+    0x19c => pub fn vexDeviceGetByIndex(index: u32) -> V5_DeviceT;
     /// Get a list of device types plugged into the brain.
     ///
     /// Returns -1 if a null pointer is passed, otherwise the number of devices
     /// that were written to the buffer.
     ///
     /// The length of the buffer should be at most [`V5_MAX_DEVICE_PORTS`].
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGetStatus(devices: *mut V5_DeviceType) -> i32;
+    0x1a0 => pub fn vexDeviceGetStatus(devices: *mut V5_DeviceType) -> i32;
     /// Get the timestamp recorded by a device's internal clock.
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGetTimestamp(device: V5_DeviceT) -> u32;
+    0x1b0 => pub fn vexDeviceGetTimestamp(device: V5_DeviceT) -> u32;
     /// Get the reading of a generic sensor.
     ///
     /// Returns `0` if the device is not considered a generic sensor by VEXos. Note that this
     /// function is not a way to read from all kinds of sensor with a single call: for example,
     /// distance sensors are not Generic sensors any more than they are motors, so they will
     /// return zero.
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericValueGet(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceButtonStateGet() -> c_int;
+    0x2a8 => pub fn vexDeviceGenericValueGet(device: V5_DeviceT) -> i32;
+    0x1b4 => pub fn vexDeviceButtonStateGet() -> c_int;
 }

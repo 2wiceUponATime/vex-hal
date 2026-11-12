@@ -4,7 +4,7 @@
 
 //! V5 GPS
 
-use super::jump_table;
+use crate::platform::jump_table;
 
 jump_table! {
     #[cfg(any())]

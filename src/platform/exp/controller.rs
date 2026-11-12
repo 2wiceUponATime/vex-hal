@@ -4,7 +4,7 @@
 
 //! V5 Controller
 
-use super::jump_table;
+use crate::platform::jump_table;
 
 jump_table! {
     /// Get the value of a controller's data channel.

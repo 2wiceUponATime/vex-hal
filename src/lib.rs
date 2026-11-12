@@ -1,15 +1,19 @@
 #![no_std]
 
 use core::panic::PanicInfo;
-
-pub mod platform;
 pub use vex_hal_macros::main;
+
+mod allocator;
+pub mod platform;
+pub mod thread;
 
 unsafe extern "C" {
     #[cfg(feature = "platform-v5")]
     static __stack_top: u8;
     static __bss_start: u8;
     static __bss_end: u8;
+    static mut __heap_start: u8;
+    static mut __heap_end: u8;
 }
 
 unsafe extern "Rust" {

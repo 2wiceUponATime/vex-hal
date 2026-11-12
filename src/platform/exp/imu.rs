@@ -4,7 +4,7 @@
 
 //! V5 Inertial Sensor
 
-use super::jump_table;
+use crate::platform::jump_table;
 
 jump_table! {
     /// Calibrates the IMU. This function is non-blocking.

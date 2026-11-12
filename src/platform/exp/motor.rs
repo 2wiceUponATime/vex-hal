@@ -9,7 +9,7 @@ use core::{
     fmt::Debug,
 };
 
-use super::{V5_DeviceT, c_enum, jump_table};
+use crate::platform::{V5_DeviceT, c_enum, jump_table};
 
 c_enum! {
     pub struct V5MotorBrakeMode: c_uchar {

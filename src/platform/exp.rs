@@ -1,5 +1,3 @@
-use super::{c_enum, jump_table};
-
 /// Handle to an opaque [`V5_Device`].
 #[allow(non_camel_case_types)]
 pub type V5_DeviceT = *mut V5_Device;
@@ -72,4 +70,8 @@ pub fn exit() -> ! {
     loop {
         unsafe { vexTaskSleep(1000) }
     }
+}
+
+pub fn yield_now() {
+    unsafe { vexTaskYield() };
 }

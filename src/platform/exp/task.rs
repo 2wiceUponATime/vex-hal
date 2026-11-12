@@ -6,7 +6,7 @@
 
 use core::ffi::{c_char, c_int, c_void};
 
-use super::jump_table;
+use crate::platform::jump_table;
 
 jump_table! {
     /// Creates an RTOS task
@@ -42,4 +42,5 @@ jump_table! {
     /// This function runs the scheduler from a context that is not itself a scheduled task. For
     /// example, the SDK's `_exit` calls it in a loop when no task is currently running.
     0x05c => pub fn vexTasksRun();
+    0x060 => pub fn vexTaskYield();
 }
