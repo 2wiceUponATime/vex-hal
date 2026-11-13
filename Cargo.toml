@@ -18,6 +18,8 @@ vex-sdk-jumptable = { version = "0.2.0", optional = true }
 
 [workspace]
 members = ["macros"]
+# If xtask is a workspace member, rust-analyzer will check it with the embedded target
+exclude = ["xtask"]
 
 [lib]
 test = false
