@@ -4,25 +4,16 @@
 
 //! V5 Rotation Sensor
 
-use crate::platform::jump_table;
+use crate::platform::{V5_DeviceT, jump_table};
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncReset(device: V5_DeviceT);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncPositionSet(device: V5_DeviceT, position: i32);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncPositionGet(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncVelocityGet(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncAngleGet(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncReverseFlagSet(device: V5_DeviceT, value: bool);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncReverseFlagGet(device: V5_DeviceT) -> bool;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncStatusGet(device: V5_DeviceT) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAbsEncDataRateSet(device: V5_DeviceT, rate: u32);
+    0x488 => pub fn vexDeviceAbsEncReset(device: V5_DeviceT);
+    0x48c => pub fn vexDeviceAbsEncPositionSet(device: V5_DeviceT, position: i32);
+    0x490 => pub fn vexDeviceAbsEncPositionGet(device: V5_DeviceT) -> i32;
+    0x494 => pub fn vexDeviceAbsEncVelocityGet(device: V5_DeviceT) -> i32;
+    0x498 => pub fn vexDeviceAbsEncAngleGet(device: V5_DeviceT) -> i32;
+    0x49c => pub fn vexDeviceAbsEncReverseFlagSet(device: V5_DeviceT, value: bool);
+    0x4a0 => pub fn vexDeviceAbsEncReverseFlagGet(device: V5_DeviceT) -> bool;
+    0x4a4 => pub fn vexDeviceAbsEncStatusGet(device: V5_DeviceT) -> u32;
+    0x4c0 => pub fn vexDeviceAbsEncDataRateSet(device: V5_DeviceT, rate: u32);
 }
