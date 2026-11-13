@@ -4,32 +4,29 @@
 
 //! V5 Smart Radio
 
-use crate::platform::jump_table;
+use core::ffi::{c_char, c_int};
+
+use crate::platform::{V5_DeviceT, jump_table};
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericRadioConnection(
+    0xaa4 => pub fn vexDeviceGenericRadioConnection(
         device: V5_DeviceT,
         link_id: *mut c_char,
         r#type: c_int,
         ov: bool,
     );
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericRadioWriteFree(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericRadioTransmit(
+    // Potential signature: 0xaa8 => pub fn vexDeviceGenericRadioWriteChar(device: V5_DeviceT, c: u8);
+    0xaac => pub fn vexDeviceGenericRadioWriteFree(device: V5_DeviceT) -> i32;
+    0xab0 => pub fn vexDeviceGenericRadioTransmit(
         device: V5_DeviceT,
         data: *const u8,
         size: u16,
     ) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericRadioReceiveAvail(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericRadioReceive(
+    0xabc => pub fn vexDeviceGenericRadioReceiveAvail(device: V5_DeviceT) -> i32;
+    0xac0 => pub fn vexDeviceGenericRadioReceive(
         device: V5_DeviceT,
         data: *mut u8,
         size: u16,
     ) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGenericRadioLinkStatus(device: V5_DeviceT) -> bool;
+    0xac8 => pub fn vexDeviceGenericRadioLinkStatus(device: V5_DeviceT) -> bool;
 }
