@@ -57,6 +57,7 @@ macro_rules! c_enum {
         #[repr(transparent)]
         #[derive(Default, Clone, Copy, PartialEq, Eq)]
         $(#[$meta])*
+        #[allow(non_camel_case_types)]
         $vis struct $name($inner);
 
         #[allow(non_upper_case_globals)]

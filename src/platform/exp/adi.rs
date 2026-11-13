@@ -4,27 +4,47 @@
 
 //! ADI Devices
 
-use crate::platform::jump_table;
+use core::ffi::{c_double, c_uchar};
+
+use crate::platform::{V5_DeviceT, c_enum, jump_table};
+
+c_enum! {
+    pub struct V5_AdiPortConfiguration: c_uchar {
+        kAdiPortTypeAnalogIn = 0,
+        kAdiPortTypeAnalogOut = 1,
+        kAdiPortTypeDigitalIn = 2,
+        kAdiPortTypeDigitalOut = 3,
+        kAdiPortTypeSmartButton = 4,
+        kAdiPortTypeSmartPot = 5,
+        kAdiPortTypeLegacyButton = 6,
+        kAdiPortTypeLegacyPotentiometer = 7,
+        kAdiPortTypeLegacyLineSensor = 8,
+        kAdiPortTypeLegacyLightSensor = 9,
+        kAdiPortTypeLegacyGyro = 10,
+        kAdiPortTypeLegacyAccelerometer = 11,
+        kAdiPortTypeLegacyServo = 12,
+        kAdiPortTypeLegacyPwm = 13,
+        kAdiPortTypeQuadEncoder = 14,
+        kAdiPortTypeSonar = 15,
+        kAdiPortTypeLegacyPwmSlew = 16,
+        kAdiPortTypeUndefined = 255,
+    }
+}
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAdiPortConfigSet(
+    0x208 => pub fn vexDeviceAdiPortConfigSet(
         device: V5_DeviceT,
         port: u32,
         config: V5_AdiPortConfiguration,
     );
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAdiPortConfigGet(
+    0x20c => pub fn vexDeviceAdiPortConfigGet(
         device: V5_DeviceT,
         port: u32,
     ) -> V5_AdiPortConfiguration;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAdiValueSet(device: V5_DeviceT, port: u32, value: i32);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAdiValueGet(device: V5_DeviceT, port: u32) -> i32;
+    0x210 => pub fn vexDeviceAdiValueSet(device: V5_DeviceT, port: u32, value: i32);
+    0x214 => pub fn vexDeviceAdiValueGet(device: V5_DeviceT, port: u32) -> i32;
     /// <Derived from <https://github.com/purduesigbots/pros/blob/89a7417352fbbc86420325afe410861e2210743c/src/devices/vdml_ext_adi.c#L40>
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceAdiAddrLedSet(
+    0x21c => pub fn vexDeviceAdiAddrLedSet(
         device: V5_DeviceT,
         port: u32,
         pData: *mut u32,
@@ -32,14 +52,9 @@ jump_table! {
         nLength: u32,
         options: u32,
     );
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceBumperGet(device: V5_DeviceT) -> V5_DeviceBumperState;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGyroReset(device: V5_DeviceT);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGyroHeadingGet(device: V5_DeviceT) -> c_double;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceGyroDegreesGet(device: V5_DeviceT) -> c_double;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceSonarValueGet(device: V5_DeviceT) -> i32;
+    // V5 only: pub fn vexDeviceBumperGet(device: V5_DeviceT) -> V5_DeviceBumperState;
+    0x258 => pub fn vexDeviceGyroReset(device: V5_DeviceT);
+    0x25c => pub fn vexDeviceGyroHeadingGet(device: V5_DeviceT) -> c_double;
+    0x260 => pub fn vexDeviceGyroDegreesGet(device: V5_DeviceT) -> c_double;
+    0x280 => pub fn vexDeviceSonarValueGet(device: V5_DeviceT) -> i32;
 }

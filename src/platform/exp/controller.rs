@@ -9,7 +9,6 @@ use core::ffi::c_uchar;
 use crate::platform::{c_enum, jump_table};
 
 c_enum! {
-    #[allow(non_camel_case_types)]
     pub struct V5_ControllerId: c_uchar {
         kControllerMaster = 0,
         kControllerPartner = 1,
@@ -17,7 +16,6 @@ c_enum! {
 }
 
 c_enum! {
-    #[allow(non_camel_case_types)]
     pub struct V5_ControllerStatus: c_uchar {
         kV5ControllerOffline = 0,
         kV5ControllerTethered = 1,
@@ -26,7 +24,6 @@ c_enum! {
 }
 
 c_enum! {
-    #[allow(non_camel_case_types)]
     pub struct V5_ControllerIndex: c_uchar {
         AnaLeftX = 0,
         AnaLeftY = 1,

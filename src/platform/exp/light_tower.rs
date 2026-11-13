@@ -4,27 +4,20 @@
 
 //! CTE Workcell Signal Tower
 
-use crate::platform::jump_table;
+use crate::platform::{V5_DeviceT, jump_table};
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerBlinkSet(
+    0x5b8 => pub fn vexDeviceLightTowerBlinkSet(
         device: V5_DeviceT,
         select: u8,
         mask: u8,
         onTime: i32,
         offTime: i32,
     );
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerColorSet(device: V5_DeviceT, color_id: u32, value: u32);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerRgbGet(device: V5_DeviceT) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerRgbSet(device: V5_DeviceT, rgb_value: u32, xyw_value: u32);
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerStatusGet(device: V5_DeviceT) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerDebugGet(device: V5_DeviceT, id: i32) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceLightTowerXywGet(device: V5_DeviceT) -> u32;
+    0x5a4 => pub fn vexDeviceLightTowerColorSet(device: V5_DeviceT, color_id: u32, value: u32);
+    0x5a8 => pub fn vexDeviceLightTowerRgbGet(device: V5_DeviceT) -> u32;
+    0x5a0 => pub fn vexDeviceLightTowerRgbSet(device: V5_DeviceT, rgb_value: u32, xyw_value: u32);
+    0x5b0 => pub fn vexDeviceLightTowerStatusGet(device: V5_DeviceT) -> u32;
+    0x5b4 => pub fn vexDeviceLightTowerDebugGet(device: V5_DeviceT, id: i32) -> u32;
+    0x5ac => pub fn vexDeviceLightTowerXywGet(device: V5_DeviceT) -> u32;
 }

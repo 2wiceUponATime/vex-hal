@@ -6,10 +6,9 @@
 //!
 //! This sensor is not sold by VEX.
 
-use crate::platform::jump_table;
+use crate::platform::{V5_DeviceT, jump_table};
 
 jump_table! {
     /// Rangefinder/Lidar - actual API to be determined
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceRangeValueGet(device: V5_DeviceT) -> i32;
+    0x4d8 => pub fn vexDeviceRangeValueGet(device: V5_DeviceT) -> i32;
 }

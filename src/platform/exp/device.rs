@@ -9,7 +9,6 @@ use core::ffi::{c_int, c_uchar};
 use crate::platform::{V5_DeviceT, c_enum, jump_table};
 
 c_enum! {
-    #[allow(non_camel_case_types)]
     pub struct V5_DeviceType: c_uchar {
         /// No device connected
         kDeviceTypeNoSensor = 0,

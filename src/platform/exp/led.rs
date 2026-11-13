@@ -11,7 +11,6 @@ use core::ffi::c_uint;
 use crate::platform::{V5_DeviceT, c_enum, jump_table};
 
 c_enum! {
-    #[allow(non_camel_case_types)]
     pub struct V5_DeviceLedColor: c_uint {
         kLedColorBlack = 0,
         kLedColorRed = 0xFF0000,
