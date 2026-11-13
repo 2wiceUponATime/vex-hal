@@ -4,17 +4,14 @@
 
 //! V5 Distance Sensor
 
-use crate::platform::jump_table;
+use core::ffi::c_double;
+
+use crate::platform::{V5_DeviceT, jump_table};
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceDistanceDistanceGet(device: V5_DeviceT) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceDistanceConfidenceGet(device: V5_DeviceT) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceDistanceStatusGet(device: V5_DeviceT) -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceDistanceObjectSizeGet(device: V5_DeviceT) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexDeviceDistanceObjectVelocityGet(device: V5_DeviceT) -> c_double;
+    0x500 => pub fn vexDeviceDistanceDistanceGet(device: V5_DeviceT) -> u32;
+    0x504 => pub fn vexDeviceDistanceConfidenceGet(device: V5_DeviceT) -> u32;
+    0x508 => pub fn vexDeviceDistanceStatusGet(device: V5_DeviceT) -> u32;
+    0x518 => pub fn vexDeviceDistanceObjectSizeGet(device: V5_DeviceT) -> i32;
+    0x051c => pub fn vexDeviceDistanceObjectVelocityGet(device: V5_DeviceT) -> c_double;
 }

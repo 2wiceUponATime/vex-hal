@@ -7,8 +7,6 @@
 use crate::platform::jump_table;
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexCompetitionStatus() -> u32;
-    #[cfg(any())]
-    0x000 => pub fn vexCompetitionControl(data: u32);
+    0x9d8 => pub fn vexCompetitionStatus() -> u32;
+    0x9dc => pub fn vexCompetitionControl(data: u32);
 }

@@ -4,39 +4,54 @@
 
 //! Filesystem Access
 
-use crate::platform::jump_table;
+use core::ffi::{c_char, c_uchar};
+
+use crate::platform::{c_enum, jump_table};
+
+c_enum! {
+    pub struct FRESULT: c_uchar {
+        FR_OK = 0,
+        FR_DISK_ERR = 1,
+        FR_INT_ERR = 2,
+        FR_NOT_READY = 3,
+        FR_NO_FILE = 4,
+        FR_NO_PATH = 5,
+        FR_INVALID_NAME = 6,
+        FR_DENIED = 7,
+        FR_EXIST = 8,
+        FR_INVALID_OBJECT = 9,
+        FR_WRITE_PROTECTED = 10,
+        FR_INVALID_DRIVE = 11,
+        FR_NOT_ENABLED = 12,
+        FR_NO_FILESYSTEM = 13,
+        FR_MKFS_ABORTED = 14,
+        FR_TIMEOUT = 15,
+        FR_LOCKED = 16,
+        FR_NOT_ENOUGH_CORE = 17,
+        FR_TOO_MANY_OPEN_FILES = 18,
+        FR_INVALID_PARAMETER = 19,
+    }
+}
+
+pub type FIL = core::ffi::c_void;
 
 jump_table! {
-    #[cfg(any())]
-    0x000 => pub fn vexFileMountSD() -> FRESULT;
-    #[cfg(any())]
-    0x000 => pub fn vexFileDirectoryGet(
+    0x7d0 => pub fn vexFileMountSD() -> FRESULT;
+    0x7d4 => pub fn vexFileDirectoryGet(
         path: *const c_char,
         buffer: *mut c_char,
         len: u32,
     ) -> FRESULT;
-    #[cfg(any())]
-    0x000 => pub fn vexFileOpen(filename: *const c_char, mode: *const c_char) -> *mut FIL;
-    #[cfg(any())]
-    0x000 => pub fn vexFileOpenWrite(filename: *const c_char) -> *mut FIL;
-    #[cfg(any())]
-    0x000 => pub fn vexFileOpenCreate(filename: *const c_char) -> *mut FIL;
-    #[cfg(any())]
-    0x000 => pub fn vexFileClose(fdp: *mut FIL);
-    #[cfg(any())]
-    0x000 => pub fn vexFileWrite(buf: *mut c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexFileSize(fdp: *mut FIL) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexFileSeek(fdp: *mut FIL, offset: u32, whence: i32) -> FRESULT;
-    #[cfg(any())]
-    0x000 => pub fn vexFileRead(buf: *mut c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexFileDriveStatus(drive: u32) -> bool;
-    #[cfg(any())]
-    0x000 => pub fn vexFileTell(fdp: *mut FIL) -> i32;
-    #[cfg(any())]
-    0x000 => pub fn vexFileSync(fdp: *mut FIL);
-    #[cfg(any())]
-    0x000 => pub fn vexFileStatus(filename: *const c_char) -> u32;
+    0x7d8 => pub fn vexFileOpen(filename: *const c_char, mode: *const c_char) -> *mut FIL;
+    0x7dc => pub fn vexFileOpenWrite(filename: *const c_char) -> *mut FIL;
+    0x7e0 => pub fn vexFileOpenCreate(filename: *const c_char) -> *mut FIL;
+    0x7e4 => pub fn vexFileClose(fdp: *mut FIL);
+    0x7ec => pub fn vexFileWrite(buf: *mut c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;
+    0x7f0 => pub fn vexFileSize(fdp: *mut FIL) -> i32;
+    0x7f4 => pub fn vexFileSeek(fdp: *mut FIL, offset: u32, whence: i32) -> FRESULT;
+    0x7f8 => pub fn vexFileRead(buf: *mut c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;
+    0x7fc => pub fn vexFileDriveStatus(drive: u32) -> bool;
+    0x800 => pub fn vexFileTell(fdp: *mut FIL) -> i32;
+    0x804 => pub fn vexFileSync(fdp: *mut FIL);
+    0x808 => pub fn vexFileStatus(filename: *const c_char) -> u32;
 }
