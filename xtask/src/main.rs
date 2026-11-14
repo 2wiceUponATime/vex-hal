@@ -188,16 +188,8 @@ async fn extract_sdk_libs(ctx: Context<'_>) -> Result<(), Error> {
 
     let archive = ctx.platform.archive();
     ctx.progress.set_message(format!("extracting {archive}"));
-    let mut cmd = Command::new("arm-none-eabi-ar");
     let libs_path = ctx.root.join(format!("decomp/{}/libs", ctx.platform));
     fs::create_dir_all(&libs_path).await?;
-    cmd.args([
-        "x",
-        &sdk.join(format!("vex{}/{archive}", ctx.platform.lower()))
-            .to_string_lossy(),
-        "--output",
-        &libs_path.to_string_lossy(),
-    ]);
     run(
         Command::new("arm-none-eabi-ar").args([
             "x",
