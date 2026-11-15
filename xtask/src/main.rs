@@ -12,6 +12,21 @@ use serde::Deserialize;
 use tokio::{fs, process::Command};
 use zip::ZipArchive;
 
+use crate::analysis::extract_jump_table;
+
+mod analysis;
+
+macro_rules! from {
+    ($enum:ty, $(|$var:ident: $ty:ty| $into:expr),+ $(,)?) => {
+        $(impl From<$ty> for $enum {
+            fn from($var: $ty) -> Self {
+                $into
+            }
+        })+
+    };
+}
+use from;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 enum Platform {
     Exp,
@@ -41,17 +56,32 @@ impl Platform {
 
     pub const fn lower(self) -> &'static str {
         match self {
-            Platform::Exp => "exp",
-            Platform::Iq2 => "iq2",
-            Platform::V5 => "v5",
+            Self::Exp => "exp",
+            Self::Iq2 => "iq2",
+            Self::V5 => "v5",
         }
     }
 
     pub const fn archive(self) -> &'static str {
         match self {
-            Platform::Exp => "libexprt.a",
-            Platform::Iq2 => "libviq2rt.a",
-            Platform::V5 => "libv5rt.a",
+            Self::Exp => "libexprt.a",
+            Self::Iq2 => "libviq2rt.a",
+            Self::V5 => "libv5rt.a",
+        }
+    }
+
+    pub const fn archive_extension(self) -> &'static str {
+        match self {
+            Self::Exp | Self::Iq2 => "o",
+            Self::V5 => "obj",
+        }
+    }
+
+    pub const fn jump_table_start(self) -> u32 {
+        match self {
+            Self::Exp => 0x301fc000,
+            Self::Iq2 => 0x101fc000,
+            Self::V5 => 0x37fc000,
         }
     }
 }
@@ -81,6 +111,7 @@ enum Commands {
     ExtractSdkLibs,
     /// Disassemble all extracted `.o` files
     Dis,
+    ExtractJumpTable,
 }
 
 struct Context<'a> {
@@ -110,16 +141,10 @@ enum Error {
     MissingSdk,
     #[error("{exec} execution failed - see {log}")]
     Command { exec: String, log: PathBuf },
-}
-
-macro_rules! from {
-    ($enum:ty, $(|$var:ident: $ty:ty| $into:expr),+ $(,)?) => {
-        $(impl From<$ty> for $enum {
-            fn from($var: $ty) -> Self {
-                $into
-            }
-        })+
-    };
+    #[error("error reading {0}: {1}")]
+    Object(PathBuf, object::Error),
+    #[error("error reading {0}: {1}")]
+    Capsone(PathBuf, capstone::Error),
 }
 
 from!(
@@ -216,7 +241,9 @@ async fn disassemble(ctx: Context<'_>) -> Result<(), Error> {
     let mut entries = fs::read_dir(&libs).await?;
     while let Some(e) = entries.next_entry().await? {
         let p = e.path();
-        if p.extension().is_some_and(|x| x == "o" || x == "obj") {
+        if p.extension()
+            .is_some_and(|x| x == ctx.platform.archive_extension())
+        {
             objs.push(p);
         }
     }
@@ -293,6 +320,7 @@ async fn main() {
                     Commands::DownloadSdk => download_sdk(ctx).await,
                     Commands::ExtractSdkLibs => extract_sdk_libs(ctx).await,
                     Commands::Dis => disassemble(ctx).await,
+                    Commands::ExtractJumpTable => extract_jump_table(ctx).await,
                 } {
                     pb.abandon_with_message(format!("error: {e}"));
                 }
