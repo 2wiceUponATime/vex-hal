@@ -29,6 +29,7 @@ macro_rules! jump_table {
         $(
             $(#[$attr])*
             #[allow(non_snake_case)]
+            #[allow(clippy::too_many_arguments)]
             /// # Safety
             /// Calls to jumptable functions are unsafe because jumptable functions are owned by
             /// VEXos and we cannot guarantee their safety.

@@ -190,7 +190,7 @@ async fn download_sdk(ctx: Context<'_>) -> Result<(), Error> {
 
     let target_dir = ctx.root.join(format!("decomp/{}/sdk", ctx.platform));
     if fs::try_exists(target_dir.join(&latest)).await? {
-        return Err(Error::Exists(target_dir.into()));
+        return Err(Error::Exists(target_dir));
     }
 
     ctx.progress.set_message(format!("downloading {latest}"));
@@ -200,7 +200,7 @@ async fn download_sdk(ctx: Context<'_>) -> Result<(), Error> {
 
     ctx.progress.set_message(format!("extracting {latest}"));
     if let Err(e) = fs::create_dir_all(&target_dir).await {
-        return Err(Error::CreateDir(target_dir.into(), e));
+        return Err(Error::CreateDir(target_dir, e));
     }
     archive.extract(&target_dir)?;
     ctx.progress.finish_with_message(format!("done ({latest})"));

@@ -1,4 +1,4 @@
-use std::{borrow::Cow, collections::HashMap, ffi::c_uint, fmt::Write, path::Path};
+use std::{borrow::Cow, collections::HashMap, ffi::c_uint, fmt::Write, iter, path::Path};
 
 use capstone::{
     Capstone, RegId,
@@ -11,13 +11,13 @@ use capstone::{
     },
 };
 use indicatif::ProgressStyle;
-use indoc::formatdoc;
+use indoc::{formatdoc, indoc};
 use itertools::Itertools;
 use object::{Object, ObjectSection, ObjectSymbol, SymbolKind};
 use regex::Regex;
 use tokio::{fs, io};
 
-use crate::{Context, Error, from, latest_downloaded_sdk};
+use crate::{Context, Error, Platform, from, latest_downloaded_sdk};
 
 pub async fn extract_jump_table(ctx: Context<'_>) -> Result<(), Error> {
     let obj_path = ctx.root.join(format!(
@@ -28,24 +28,40 @@ pub async fn extract_jump_table(ctx: Context<'_>) -> Result<(), Error> {
     ));
 
     let include = latest_downloaded_sdk(&ctx).await?;
-    let header = String::from_utf8(
-        fs::read(include.join(format!("vex{}/include/{0}_api.h", ctx.platform.lower()))).await?,
-    )
-    .unwrap();
+    let header =
+        fs::read_to_string(include.join(format!("vex{}/include/{0}_api.h", ctx.platform.lower())))
+            .await?;
+    let known_header = fs::read_to_string(ctx.root.join("decomp/known_signatures.h")).await?;
 
     let mut signatures = HashMap::new();
-    let sig_re = Regex::new(r"(?ui)^([a-z\d_]+ +\**)([a-z_\d]+) *\(.*\) *; *$").unwrap();
+    let sig_re = Regex::new(r"(?ui)^([a-z\d_]+ +)(\**)(([a-z_\d]+) *\(.*\) *; *)$").unwrap();
     let mut padding = None;
 
-    for line in header.lines() {
+    for (line, needs_padding) in header
+        .lines()
+        .zip(iter::repeat(false))
+        .chain(known_header.lines().zip(iter::repeat(true)))
+    {
         if line.starts_with("#") || line.starts_with("typedef ") {
             continue;
         }
         if let Some(caps) = sig_re.captures(line) {
             if padding.is_none() {
-                padding = Some(caps[1].len());
+                padding = Some(caps[1].len() + caps[2].len());
             }
-            signatures.insert(caps[2].to_owned(), line);
+            signatures.entry(caps[4].to_owned()).or_insert_with(|| {
+                if needs_padding {
+                    format!(
+                        "{:<w$}{}{}",
+                        &caps[1],
+                        &caps[2],
+                        &caps[3],
+                        w = padding.unwrap() - caps[2].len()
+                    )
+                } else {
+                    line.to_owned()
+                }
+            });
         }
     }
 
@@ -140,7 +156,7 @@ async fn process(
     ctx: &Context<'_>,
     sdk_path: &Path,
     bytes: Vec<u8>,
-    signatures: &HashMap<String, &str>,
+    signatures: &HashMap<String, String>,
     padding: usize,
 ) -> Result<(), AnalysisError> {
     let file = object::File::parse(&*bytes)?;
@@ -160,11 +176,43 @@ async fn process(
 
     let mut out = formatdoc! {r#"
         #include "sdk/{}/vex{}/include/{1}_api.h" // IWYU pragma: keep
+
         typedef uint32_t unknown;
+        typedef int (*rmTask_t)(void);
 
     "#, sdk_path.file_name().unwrap().to_str().unwrap(),
     ctx.platform.lower()}
     .to_owned();
+
+    // Scheduler types used by known_signatures.h. The IQ2 SDK already declares these.
+    if !matches!(ctx.platform, Platform::Iq2) {
+        out.push_str(indoc! {"
+            typedef void (*rmTaskSimple_t)(void);
+            typedef int (*rmTaskArg_t)(void *);
+
+            typedef enum _rmTaskStates {
+                kTaskUndefined = 0,
+                kTaskInitializing,
+                kTaskRunning,
+                kTaskTimerWait,
+                kTaskStop,
+                kTaskSemaphoreWait,
+                kTaskSemaphoreRunPending,
+                kTaskSuspended,
+                kTaskInitializeSuspended,
+                kTaskRunningSuspended,
+                kTaskTimerWaitSuspended,
+                kTaskSemaphoreWaitSuspended,
+                kTaskComplete = 99
+            } rmTaskStates;
+
+            typedef struct _rmSemaphore {
+                uint8_t nOwningTask;
+                uint8_t nLockCount;
+            } rmSemaphore;
+
+        "});
+    }
 
     let symbols = file
         .symbols()
@@ -201,7 +249,7 @@ async fn process(
             let arch = detail.arch_detail();
             let arm = arch.arm().unwrap();
             let ops = arm.operands().collect_vec();
-            let id = ArmInsn::try_from(insn.id().0).unwrap();
+            let id = ArmInsn::from(insn.id().0);
 
             if let Some(saved) = pending.remove(&insn.address()) {
                 if reachable {
@@ -320,7 +368,7 @@ async fn process(
         }
 
         let sig = match signatures.get(name) {
-            Some(&sig) => Cow::Borrowed(sig),
+            Some(sig) => Cow::Borrowed(sig),
             None => Cow::Owned(format!("{:<padding$}{name}(/* unknown */);", "unknown ",)),
         };
 
@@ -342,7 +390,7 @@ async fn process(
     }
 
     fs::write(
-        ctx.root.join(format!("decomp/{}/jump.c", ctx.platform)),
+        ctx.root.join(format!("decomp/{}/jump.h", ctx.platform)),
         out,
     )
     .await?;
