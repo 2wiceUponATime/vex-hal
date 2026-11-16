@@ -190,7 +190,7 @@ async fn download_sdk(ctx: Context<'_>) -> Result<(), Error> {
 
     let target_dir = ctx.root.join(format!("decomp/{}/sdk", ctx.platform));
     if fs::try_exists(target_dir.join(&latest)).await? {
-        return Err(Error::Exists(target_dir));
+        return Err(Error::Exists(target_dir.join(&latest)));
     }
 
     ctx.progress.set_message(format!("downloading {latest}"));

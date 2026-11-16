@@ -175,7 +175,7 @@ async fn process(
         .unwrap();
 
     let mut out = formatdoc! {r#"
-        #include "sdk/{}/vex{}/include/{1}_api.h" // IWYU pragma: keep
+        #include "sdk/{}/vex{}/include/{1}_api.h"
 
         typedef uint32_t unknown;
         typedef int (*rmTask_t)(void);
@@ -185,30 +185,30 @@ async fn process(
     .to_owned();
 
     // Scheduler types used by known_signatures.h. The IQ2 SDK already declares these.
-    if !matches!(ctx.platform, Platform::Iq2) {
+    if ctx.platform != Platform::Iq2 {
         out.push_str(indoc! {"
             typedef void (*rmTaskSimple_t)(void);
             typedef int (*rmTaskArg_t)(void *);
 
-            typedef enum _rmTaskStates {
-                kTaskUndefined = 0,
-                kTaskInitializing,
-                kTaskRunning,
-                kTaskTimerWait,
-                kTaskStop,
-                kTaskSemaphoreWait,
-                kTaskSemaphoreRunPending,
-                kTaskSuspended,
-                kTaskInitializeSuspended,
-                kTaskRunningSuspended,
-                kTaskTimerWaitSuspended,
-                kTaskSemaphoreWaitSuspended,
-                kTaskComplete = 99
+            typedef enum {
+              kTaskUndefined = 0,
+              kTaskInitializing,
+              kTaskRunning,
+              kTaskTimerWait,
+              kTaskStop,
+              kTaskSemaphoreWait,
+              kTaskSemaphoreRunPending,
+              kTaskSuspended,
+              kTaskInitializeSuspended,
+              kTaskRunningSuspended,
+              kTaskTimerWaitSuspended,
+              kTaskSemaphoreWaitSuspended,
+              kTaskComplete = 99
             } rmTaskStates;
 
-            typedef struct _rmSemaphore {
-                uint8_t nOwningTask;
-                uint8_t nLockCount;
+            typedef struct {
+              uint8_t nOwningTask;
+              uint8_t nLockCount;
             } rmSemaphore;
 
         "});

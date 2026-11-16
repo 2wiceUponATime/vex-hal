@@ -46,6 +46,9 @@ jump_table! {
     /// discarded, and any portions of the region that no longer have a value after the
     /// operation are set to the background color.
     0x64c => pub fn vexDisplayScroll(nStartLine: i32, nLines: i32);
+    0x69c => pub fn vexDisplayTextSmoothing(value: u32);
+    0x6a0 => pub fn vexDisplayTextReference(value: u32);
+    0x6ac => pub fn vexDisplayTextSpacing(value: u32);
     0x6a8 => pub fn vexDisplayTextSize(n: u32, d: u32);
     0x6b4 => pub fn vexDisplayFontNamedSet(pFontName: *const c_char);
     /// Gets the currently set foreground color as an RGB8 color.
@@ -60,6 +63,8 @@ jump_table! {
     ///
     /// This function uses the text size of the last text drawing operation for calculating height.
     0x6c4 => pub fn vexDisplayStringHeightGet(pString: *const c_char) -> i32;
+    0x6c8 => pub fn vexDisplayPenSizeSet(value: u32);
+    0x6cc => pub fn vexDisplayPenSizeGet() -> u32;
     /// Enables double-buffered mode on the display, flushing the intermediate framebuffer.
     ///
     /// The first time this function is called, double-buffered mode will be enabled. In order for future draws to be

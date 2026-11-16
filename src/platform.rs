@@ -26,6 +26,15 @@ macro_rules! jump_table {
                 => $vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)?;
         )*
     } => {
+        const _: () = {
+            #[deny(unreachable_patterns)]
+            const fn _check(x: usize) {
+                match x {
+                    $($offset => {})*
+                    _ => {}
+                }
+            }
+        };
         $(
             $(#[$attr])*
             #[allow(non_snake_case)]

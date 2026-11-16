@@ -51,6 +51,7 @@ jump_table! {
     ///
     /// The next byte in the input buffer, or -1 if no character is available to be read.
     0x8a4 => pub fn vexSerialPeekChar(channel: u32) -> i32;
+    0x8a8 => pub fn vexSerialEnableRemoteConsole();
     /// Returns the number of free bytes (out of `2048`) remaining in the serial output
     /// buffer.
     ///

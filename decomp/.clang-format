@@ -1,0 +1,4 @@
+# extract-jump-table reads known_signatures.h line by line, so every
+# declaration must stay on a single line.
+BasedOnStyle: LLVM
+ColumnLimit: 1000

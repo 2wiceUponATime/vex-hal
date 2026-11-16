@@ -2,11 +2,13 @@
 // SPDX-FileCopyrightText = 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-//! V5 Smart Devices
+//! EXP Smart Devices
 
-use core::ffi::{c_int, c_uchar};
+use core::ffi::c_uchar;
 
 use crate::platform::{V5_DeviceT, c_enum, jump_table};
+
+pub const V5_MAX_DEVICE_PORTS: usize = 32;
 
 c_enum! {
     pub struct V5_DeviceType: c_uchar {
@@ -87,7 +89,11 @@ jump_table! {
     /// The length of the buffer should be at most [`V5_MAX_DEVICE_PORTS`].
     0x1a0 => pub fn vexDeviceGetStatus(devices: *mut V5_DeviceType) -> i32;
     /// Get the timestamp recorded by a device's internal clock.
-    0x1b0 => pub fn vexDeviceGetTimestamp(device: V5_DeviceT) -> u32;
+    0x1b0 => pub fn vexDeviceGetTimestamp(device: V5_DeviceT) -> i32;
+    0x1b4 => pub fn vexDeviceButtonStateGet() -> u32;
+    0x1b8 => pub fn vexDeviceTypeGetByIndex(index: u32) -> V5_DeviceType;
+    0x1bc => pub fn vexDeviceTypeSetByIndex(index: u32, r#type: V5_DeviceType);
+    0x1d8 => pub fn vexDeviceFlagsGetByIndex(index: u32) -> u32;
     /// Get the reading of a generic sensor.
     ///
     /// Returns `0` if the device is not considered a generic sensor by VEXos. Note that this
@@ -95,5 +101,4 @@ jump_table! {
     /// distance sensors are not Generic sensors any more than they are motors, so they will
     /// return zero.
     0x2a8 => pub fn vexDeviceGenericValueGet(device: V5_DeviceT) -> i32;
-    0x1b4 => pub fn vexDeviceButtonStateGet() -> c_int;
 }

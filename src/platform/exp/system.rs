@@ -4,6 +4,8 @@
 
 //! VEXos System Functions
 
+use core::ffi::VaList;
+use core::ffi::c_char;
 use core::ffi::c_void;
 
 use crate::platform::JUMP_TABLE_START;
@@ -37,10 +39,18 @@ pub struct date {
 jump_table! {
     0x998 => pub fn vexScratchMemoryLock() -> bool;
     0x99c => pub fn vexScratchMemoryUnlock();
+    0x0c8 => pub fn vexBreak(filehash: u32, tag: u32);
+    0x0f4 => pub fn vex_vsprintf(out: *mut c_char, format: *const c_char, args: VaList);
+    0x0f8 => pub fn vex_vsnprintf(
+        out: *mut c_char,
+        max_len: u32,
+        format: *const c_char,
+        args: VaList,
+    );
     /// Returns the time since program start with millisecond precision.
     0x118 => pub fn vexSystemTimeGet() -> u32;
-    0x11c => pub fn vexGettime() -> time;
-    0x120 => pub fn vexGetdate() -> date;
+    0x11c => pub fn vexGettime(time: *mut time);
+    0x120 => pub fn vexGetdate(date: *mut date);
     0x124 => pub fn vexSystemMemoryDump();
     0x128 => pub fn vexSystemDigitalIO(pin: u32, value: u32);
     0x12c => pub fn vexSystemStartupOptions() -> u32;
