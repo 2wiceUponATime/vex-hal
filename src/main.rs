@@ -4,12 +4,9 @@
 #![no_std]
 #![no_main]
 
-use vex_hal::{platform::vexTaskSleep, println};
+use vex_hal::{peripherals::Peripherals, println};
 
 #[vex_hal::main]
-fn main() {
+fn main(_peripherals: Peripherals) {
     println!("Hello, World!");
-    loop {
-        unsafe { vexTaskSleep(1000) };
-    }
 }

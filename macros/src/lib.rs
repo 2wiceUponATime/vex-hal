@@ -22,14 +22,26 @@ fn main2(attrs: TokenStream2, item: TokenStream2) -> syn::Result<TokenStream2> {
     }
     let func: ItemFn = syn::parse2(item)?;
     let name = &func.sig.ident;
+    let body = if func.sig.asyncness.is_some() {
+        quote! {
+            let f: fn(Peripherals) -> _ = #name;
+            ::vex_hal::runtime::task::block_on(f(peripherals))
+        }
+    } else {
+        quote! {
+            let f: fn(Peripherals) = #name;
+            f(peripherals)
+        }
+    };
     Ok(quote! {
         #func
 
         #[doc(hidden)]
         #[unsafe(export_name = "__vex_hal_main")]
         extern "Rust" fn __vex_hal_main() {
-            let f: fn() = #name;
-            f()
+            type Peripherals = ::vex_hal::peripherals::Peripherals;
+            let peripherals = unsafe { Peripherals::new() };
+            #body
         }
     })
 }
