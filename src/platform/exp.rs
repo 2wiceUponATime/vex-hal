@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 vexide
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 /// Handle to an opaque [`V5_Device`].
 #[allow(non_camel_case_types)]
 pub type V5_DeviceT = *mut V5_Device;

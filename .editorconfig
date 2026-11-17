@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Gabe Schrock
+# SPDX-License-Identifier: MIT
+
 [*]
 indent_style = space
 indent_size = 2

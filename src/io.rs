@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 use core::fmt::{self, Write};
 
 use crate::platform::{STDIO_CHANNEL, vexSerialWriteBuffer};

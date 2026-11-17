@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 use std::{
     fmt::{self, Display},
     io::{self, Cursor},

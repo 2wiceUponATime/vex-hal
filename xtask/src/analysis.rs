@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 use std::{borrow::Cow, collections::HashMap, ffi::c_uint, fmt::Write, iter, path::Path};
 
 use capstone::{

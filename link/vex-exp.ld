@@ -1,3 +1,8 @@
+/*
+SPDX-FileCopyrightText: 2026 Gabe Schrock
+SPDX-License-Identifier: MIT
+*/
+
 MEMORY { USER_RAM (rwx) : ORIGIN = 0x202C0000, LENGTH = 0x80000 }
 PROVIDE(__vcodesig_magic = 0x45585658);
 PROVIDE(__heap_length  = 0x8000);

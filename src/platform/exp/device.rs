@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText = 2025 vexide
-// SPDX-FileCopyrightText = 2026 Gabe Schrock
+// SPDX-FileCopyrightText: 2025 vexide
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
 //! EXP Smart Devices

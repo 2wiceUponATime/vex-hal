@@ -46,7 +46,8 @@ jump_table! {
     0x7dc => pub fn vexFileOpenWrite(filename: *const c_char) -> *mut FIL;
     0x7e0 => pub fn vexFileOpenCreate(filename: *const c_char) -> *mut FIL;
     0x7e4 => pub fn vexFileClose(fdp: *mut FIL);
-    0x7ec => pub fn vexFileWrite(buf: *mut c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;
+    // The SDK doesn't use `const char *`, but it can be assumed that `buf` is not mutated.
+    0x7ec => pub fn vexFileWrite(buf: *const c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;
     0x7f0 => pub fn vexFileSize(fdp: *mut FIL) -> i32;
     0x7f4 => pub fn vexFileSeek(fdp: *mut FIL, offset: u32, whence: i32) -> FRESULT;
     0x7f8 => pub fn vexFileRead(buf: *mut c_char, size: u32, nItems: u32, fdp: *mut FIL) -> i32;

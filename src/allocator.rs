@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 use core::alloc::Layout;
 
 use talc::{

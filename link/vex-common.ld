@@ -1,3 +1,8 @@
+/*
+SPDX-FileCopyrightText: 2026 Gabe Schrock
+SPDX-License-Identifier: MIT
+*/
+
 ENTRY(_boot)
 
 PROVIDE(__vcodesig_type    = 0);

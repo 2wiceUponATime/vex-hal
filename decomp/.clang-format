@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Gabe Schrock
+# SPDX-License-Identifier: MIT
+
 # extract-jump-table reads known_signatures.h line by line, so every
 # declaration must stay on a single line.
 BasedOnStyle: LLVM

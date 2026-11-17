@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Gabe Schrock
+# SPDX-License-Identifier: MIT
+
 [package]
 name = "vex-hal-macros"
 version = "0.1.0"

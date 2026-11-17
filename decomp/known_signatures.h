@@ -1,3 +1,10 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+//
+// Declarations for VEXos SDK jump-table entries. The API surface is defined by
+// VEX's proprietary VEXos SDK (https://www.vexrobotics.com/licensing-eula);
+// only these interface declarations are reproduced here to interoperate with it.
+
 #include <stdint.h>
 
 typedef int (*rmTask_t)(void);

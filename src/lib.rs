@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 #![no_std]
 
 use core::panic::PanicInfo;
@@ -5,8 +8,11 @@ pub use vex_hal_macros::main;
 
 mod allocator;
 pub mod io;
+pub mod peripherals;
 pub mod platform;
+pub mod runtime;
 pub mod thread;
+pub mod time;
 
 unsafe extern "C" {
     #[cfg(feature = "platform-v5")]
