@@ -9,6 +9,8 @@
 use crate::platform::{V5_DeviceT, jump_table};
 
 jump_table! {
+    /// Unimplemented as of VEXos 1.0.8.
+    ///
     /// Rangefinder/Lidar - actual API to be determined
     0x4d8 => pub fn vexDeviceRangeValueGet(device: V5_DeviceT) -> i32;
 }

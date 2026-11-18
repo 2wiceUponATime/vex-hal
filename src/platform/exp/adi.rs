@@ -53,8 +53,12 @@ jump_table! {
         options: u32,
     );
     // V5 only: pub fn vexDeviceBumperGet(device: V5_DeviceT) -> V5_DeviceBumperState;
+    /// Unimplemented as of VEXos 1.0.8.
     0x258 => pub fn vexDeviceGyroReset(device: V5_DeviceT);
+    /// Unimplemented as of VEXos 1.0.8.
     0x25c => pub fn vexDeviceGyroHeadingGet(device: V5_DeviceT) -> c_double;
+    /// Unimplemented as of VEXos 1.0.8.
     0x260 => pub fn vexDeviceGyroDegreesGet(device: V5_DeviceT) -> c_double;
+    /// Unimplemented as of VEXos 1.0.8.
     0x280 => pub fn vexDeviceSonarValueGet(device: V5_DeviceT) -> i32;
 }

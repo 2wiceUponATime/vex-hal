@@ -15,7 +15,7 @@ use serde::Deserialize;
 use tokio::{fs, process::Command};
 use zip::ZipArchive;
 
-use crate::analysis::extract_jump_table;
+use crate::analysis::{disassemble_jump_table, extract_jump_table};
 
 mod analysis;
 
@@ -48,13 +48,17 @@ impl Display for Platform {
 }
 
 impl Platform {
-    pub fn sdk_base_url(self) -> impl Display {
+    pub const fn sdk_base_url(self) -> impl Display {
         std::fmt::from_fn(move |f| {
             write!(
                 f,
                 "https://content.vexrobotics.com/vexos/public/{self}/vscode/sdk/cpp",
             )
         })
+    }
+
+    pub const fn os_base_url(self) -> impl Display {
+        std::fmt::from_fn(move |f| write!(f, "https://content.vexrobotics.com/vexos/public/{self}"))
     }
 
     pub const fn lower(self) -> &'static str {
@@ -87,6 +91,14 @@ impl Platform {
             Self::V5 => 0x37fc000,
         }
     }
+
+    pub const fn boot_load_address(self) -> u32 {
+        match self {
+            Platform::Exp => 0x30040000,
+            Platform::Iq2 => 0x10040000,
+            Platform::V5 => unimplemented!(),
+        }
+    }
 }
 
 fn as_platform_array(platform: Option<Platform>) -> Vec<Platform> {
@@ -108,12 +120,17 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
-    /// Download the latest official VEX SDK for decompilation
+    /// Download the latest VEX SDK version for decompilation
     DownloadSdk,
+    /// Download the latest VEXos version for decompilation
+    DownloadOs,
     /// Extract `lib[platform]rt.a` from the downloaded SDK
     ExtractSdkLibs,
     /// Disassemble all extracted `.o` files
     Dis,
+    /// Disassemble OS jump table entries
+    DisJumpTable,
+    /// Extract the offsets of functions in the jump table
     ExtractJumpTable,
 }
 
@@ -130,6 +147,10 @@ struct SdkManifest {
 
 #[derive(Debug, thiserror::Error)]
 enum Error {
+    #[error("{0}")]
+    Static(&'static str),
+    #[error("no OS found")]
+    NoOsFound,
     #[error(transparent)]
     Http(reqwest::Error),
     #[error(transparent)]
@@ -140,8 +161,6 @@ enum Error {
     Exists(PathBuf),
     #[error("error creating {0}: {1}")]
     CreateDir(PathBuf, io::Error),
-    #[error("no SDK found")]
-    MissingSdk,
     #[error("{exec} execution failed - see {log}")]
     Command { exec: String, log: PathBuf },
     #[error("error reading {0}: {1}")]
@@ -196,12 +215,40 @@ async fn download_sdk(ctx: Context<'_>) -> Result<(), Error> {
         return Err(Error::Exists(target_dir.join(&latest)));
     }
 
-    ctx.progress.set_message(format!("downloading {latest}"));
+    ctx.progress
+        .set_message(format!("downloading {latest}.zip"));
     let url = format!("{}/{latest}.zip", ctx.platform.sdk_base_url());
     let bytes = reqwest::get(&url).await?.bytes().await?;
     let mut archive = ZipArchive::new(Cursor::new(bytes))?;
 
-    ctx.progress.set_message(format!("extracting {latest}"));
+    ctx.progress.set_message(format!("extracting {latest}.zip"));
+    if let Err(e) = fs::create_dir_all(&target_dir).await {
+        return Err(Error::CreateDir(target_dir, e));
+    }
+    archive.extract(&target_dir)?;
+    ctx.progress.finish_with_message(format!("done ({latest})"));
+    Ok(())
+}
+
+async fn download_os(ctx: Context<'_>) -> Result<(), Error> {
+    ctx.progress.set_message("fetching manifest");
+    let url = format!("{}/catalog.txt", ctx.platform.os_base_url());
+    let latest = reqwest::get(&url).await?.text().await?;
+    let latest = latest.trim();
+
+    let target_dir = ctx.root.join(format!("decomp/{}/os", ctx.platform));
+    if fs::try_exists(target_dir.join(&latest)).await? {
+        return Err(Error::Exists(target_dir.join(&latest)));
+    }
+
+    ctx.progress
+        .set_message(format!("downloading {latest}.vexos"));
+    let url = format!("{}/{latest}.vexos", ctx.platform.os_base_url());
+    let bytes = reqwest::get(&url).await?.bytes().await?;
+    let mut archive = ZipArchive::new(Cursor::new(bytes))?;
+
+    ctx.progress
+        .set_message(format!("extracting {latest}.vexos"));
     if let Err(e) = fs::create_dir_all(&target_dir).await {
         return Err(Error::CreateDir(target_dir, e));
     }
@@ -288,6 +335,7 @@ async fn disassemble(ctx: Context<'_>) -> Result<(), Error> {
 
 async fn latest_downloaded_sdk(ctx: &Context<'_>) -> Result<PathBuf, Error> {
     let base = ctx.root.join(format!("decomp/{}/sdk", ctx.platform));
+    fs::create_dir_all(&base).await?;
     let mut entries = fs::read_dir(&base).await?;
     let mut latest = None;
     while let Some(entry) = entries.next_entry().await.ok().flatten() {
@@ -297,7 +345,24 @@ async fn latest_downloaded_sdk(ctx: &Context<'_>) -> Result<PathBuf, Error> {
             latest = latest.max(Some(name));
         }
     }
-    latest.ok_or(Error::MissingSdk).map(|v| base.join(v))
+    latest
+        .ok_or(Error::Static("no SDK found"))
+        .map(|v| base.join(v))
+}
+
+async fn latest_downloaded_os(ctx: &Context<'_>) -> Result<PathBuf, Error> {
+    let base = ctx.root.join(format!("decomp/{}/os", ctx.platform));
+    fs::create_dir_all(&base).await?;
+    let mut entries = fs::read_dir(&base).await?;
+    let mut latest = None;
+    while let Some(entry) = entries.next_entry().await.ok().flatten() {
+        if entry.file_type().await.is_ok_and(|t| t.is_dir())
+            && let Ok(name) = entry.file_name().into_string()
+        {
+            latest = latest.max(Some(name));
+        }
+    }
+    latest.ok_or(Error::NoOsFound).map(|v| base.join(v))
 }
 
 #[tokio::main]
@@ -321,8 +386,10 @@ async fn main() {
                 };
                 if let Err(e) = match cli.command {
                     Commands::DownloadSdk => download_sdk(ctx).await,
+                    Commands::DownloadOs => download_os(ctx).await,
                     Commands::ExtractSdkLibs => extract_sdk_libs(ctx).await,
                     Commands::Dis => disassemble(ctx).await,
+                    Commands::DisJumpTable => disassemble_jump_table(ctx).await,
                     Commands::ExtractJumpTable => extract_jump_table(ctx).await,
                 } {
                     pb.abandon_with_message(format!("error: {e}"));

@@ -93,4 +93,5 @@ macro_rules! c_enum {
 use {c_enum, jump_table};
 
 pub const STDIO_CHANNEL: u32 = 1;
+/// Constant on all platforms
 pub const V5_MAX_DEVICE_PORTS: usize = 32;

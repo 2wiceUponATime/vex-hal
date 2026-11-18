@@ -9,10 +9,11 @@ use snafu::{Snafu, ensure};
 use crate::{platform::*, time::LowResolutionTime};
 
 pub mod motor;
+pub mod serial;
 
 /// Defines common functionality shared by all Smart Port devices.
 pub trait SmartDevice {
-    /// The interval at which the V5 brain reads packets from Smart devices.
+    /// The interval at which the V5 and EXP brains read packets from Smart devices.
     const UPDATE_INTERVAL: Duration = Duration::from_millis(10);
 
     /// Returns the port number of the [`SmartPort`] this device is registered on.

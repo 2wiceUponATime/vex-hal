@@ -77,6 +77,8 @@ jump_table! {
     /// - `bVsyncWait`: Sleep the current task until the screen is ready to refresh.
     /// - `bRunScheduler`: Call [`vexTasksRun`](crate::task::vexTasksRun) while waiting for a refresh.
     0x7a0 => pub fn vexDisplayRender(bVsyncWait: bool, bRunScheduler: bool);
+    /// Unimplemented as of VEXos 1.0.8.
+    ///
     /// Disables double-buffered mode, switching back to immediate mode rendering.
     0x7a4 => pub fn vexDisplayDoubleBufferDisable();
     /// Decodes a bitmap-encoded image passed to `ibuf` into a buffer of pixels that can be drawn to the display.

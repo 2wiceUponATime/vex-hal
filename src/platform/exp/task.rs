@@ -128,6 +128,8 @@ jump_table! {
     0xf68 => pub fn vexTaskPrioritySetWithId(task: rmTaskArg_t, callback_id: c_int, priority: i32);
     0xf6c => pub fn vexTaskStateGetWithId(task: rmTaskArg_t, callback_id: c_int) -> rmTaskStates;
     0xf70 => pub fn vexTaskGetTaskIndexWithId(task: rmTaskArg_t, callback_id: c_int) -> i32;
+    /// Unimplemented as of VEXos 1.0.8.
+    ///
     /// Performs simple background processing.
     0xf74 => pub fn vexBackgroundProcessing();
     0xf78 => pub fn vexTaskWaitForExitWithId(task: rmTaskArg_t, callback_id: c_int);

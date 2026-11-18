@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-use std::{borrow::Cow, collections::HashMap, ffi::c_uint, fmt::Write, iter, path::Path};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    ffi::c_uint,
+    fmt::Write,
+    iter,
+    path::Path,
+};
 
 use capstone::{
     Capstone, RegId,
@@ -13,16 +20,34 @@ use capstone::{
         },
     },
 };
+use futures::{StreamExt, TryStreamExt, stream};
 use indicatif::ProgressStyle;
 use indoc::{formatdoc, indoc};
 use itertools::Itertools;
+use memchr::memmem;
 use object::{Object, ObjectSection, ObjectSymbol, SymbolKind};
 use regex::Regex;
-use tokio::{fs, io};
+use tokio::{fs, io, process::Command};
 
-use crate::{Context, Error, Platform, from, latest_downloaded_sdk};
+use crate::{Context, Error, Platform, from, latest_downloaded_os, latest_downloaded_sdk, run};
+
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
+enum Entry {
+    #[default]
+    Present,
+    Null,
+    Unimplemented,
+}
+
+type Table = [Entry; 0x400];
 
 pub async fn extract_jump_table(ctx: Context<'_>) -> Result<(), Error> {
+    let table = if ctx.platform == Platform::V5 {
+        [Entry::Present; 0x400]
+    } else {
+        read_table(&ctx).await?
+    };
+
     let obj_path = ctx.root.join(format!(
         "decomp/{}/libs/{}_apijump.c.{}",
         ctx.platform,
@@ -75,6 +100,7 @@ pub async fn extract_jump_table(ctx: Context<'_>) -> Result<(), Error> {
         &include,
         fs::read(&obj_path).await?,
         &signatures,
+        &table,
         padding.unwrap(),
     )
     .await
@@ -87,6 +113,218 @@ pub async fn extract_jump_table(ctx: Context<'_>) -> Result<(), Error> {
     }
     ctx.progress.finish_with_message("Done");
     Ok(())
+}
+
+pub async fn disassemble_jump_table(ctx: Context<'_>) -> Result<(), Error> {
+    if ctx.platform == Platform::V5 {
+        return Err(Error::Static("not available for V5"));
+    }
+
+    let cs_arm = Capstone::new()
+        .arm()
+        .mode(Arm)
+        .detail(true)
+        .build()
+        .unwrap();
+    let cs_thumb = Capstone::new()
+        .arm()
+        .mode(Thumb)
+        .detail(true)
+        .build()
+        .unwrap();
+
+    let latest = latest_downloaded_os(&ctx).await?;
+    let boot_path = latest.join("BOOT.bin");
+    let boot = fs::read(&boot_path).await?;
+    let assets = fs::read(latest.join("assets.bin")).await?;
+    let boot_start = ctx.platform.boot_load_address();
+
+    // Which entries are real, implemented functions (not null or the stub).
+    let table = read_table(&ctx).await?;
+
+    // Entry offset -> API name, inverted from the SDK's apijump wrappers: each
+    // wrapper calls the entry that is its own OS implementation.
+    ctx.progress.set_message("recovering names");
+    let obj_path = ctx.root.join(format!(
+        "decomp/{}/libs/{}_apijump.c.{}",
+        ctx.platform,
+        ctx.platform.lower(),
+        ctx.platform.archive_extension()
+    ));
+    let functions = analyze(&ctx, &fs::read(&obj_path).await?).map_err(|e| match e {
+        AnalysisError::Object(e) => Error::Object(obj_path.clone(), e),
+        AnalysisError::Capstone(e) => Error::Capsone(obj_path.clone(), e),
+        AnalysisError::Io(e) => Error::Io(e),
+    })?;
+    let mut names = HashMap::new();
+    for func in functions {
+        for call in func.calls {
+            names.entry(call).or_insert_with(|| func.name.clone());
+        }
+    }
+
+    // Wrap BOOT.bin in an ELF placed at its load address, carrying a symbol for
+    // every implemented entry so objdump can name branch targets, plus `$a`/`$t`
+    // mapping symbols so it decodes each function in the right instruction set.
+    let mut args: Vec<String> = ["-I", "binary", "-O", "elf32-littlearm", "-B", "arm"]
+        .map(String::from)
+        .to_vec();
+    args.push("--set-section-flags".into());
+    args.push(".data=alloc,load,readonly,code,contents".into());
+    args.push("--change-section-address".into());
+    args.push(format!(".data={boot_start:#x}"));
+    args.push("--set-start".into());
+    args.push(format!("{boot_start:#x}"));
+
+    // (entry offset, start address, stop address) for each distinct function.
+    let mut dumps = Vec::new();
+    let mut seen = HashSet::new();
+    for (i, &entry) in assets[0..0x1000].as_chunks::<4>().0.iter().enumerate() {
+        if table[i] != Entry::Present {
+            continue;
+        }
+        let entry = u32::from_le_bytes(entry);
+        let ptr = entry & !1;
+        let thumb = entry & 1 == 1;
+        if ptr < boot_start || (ptr - boot_start) as usize >= boot.len() {
+            ctx.progress
+                .println(format!("warning: entry 0x{:03x} points outside BOOT.bin", i * 4));
+            continue;
+        }
+        let offset = (ptr - boot_start) as u64;
+        let entry_offset = (i * 4) as u32;
+        let name = names
+            .get(&entry_offset)
+            .cloned()
+            .unwrap_or_else(|| format!("fn_{entry_offset:03x}"));
+
+        // The function symbol carries the Thumb bit in its value so objdump
+        // resolves `blx`/`bx` targets to it.
+        args.push("--add-symbol".into());
+        args.push(format!(
+            "{name}=.data:{:#x},function,global",
+            offset | thumb as u64
+        ));
+
+        // One mapping symbol and one disassembly range per distinct function;
+        // several entries may alias the same implementation.
+        if seen.insert(offset) {
+            args.push("--add-symbol".into());
+            args.push(format!("{}=.data:{offset:#x}", if thumb { "$t" } else { "$a" }));
+
+            let size = function_size(
+                if thumb { &cs_thumb } else { &cs_arm },
+                &boot,
+                offset,
+                thumb,
+            )
+            .map_err(|e| Error::Capsone(boot_path.clone(), e))?;
+            let start = boot_start as u64 + offset;
+            dumps.push((entry_offset, start, start + size));
+        }
+    }
+
+    let elf_path = ctx.root.join(format!("decomp/{}/os.elf", ctx.platform));
+    args.push(boot_path.to_string_lossy().into_owned());
+    args.push(elf_path.to_string_lossy().into_owned());
+
+    ctx.progress.set_message("building symbol table");
+    run(
+        Command::new("arm-none-eabi-objcopy").args(&args),
+        elf_path.with_extension("objcopy.log"),
+    )
+    .await?;
+
+    ctx.progress.set_length(dumps.len() as u64);
+    ctx.progress.set_position(0);
+    ctx.progress.set_style(
+        ProgressStyle::with_template("{spinner} {prefix:>4} [{pos}/{len}] {msg}").unwrap(),
+    );
+    ctx.progress.set_message("disassembling");
+
+    let jobs = std::thread::available_parallelism().map_or(4, |n| n.get());
+    let mut outputs: Vec<(u32, Vec<u8>)> = stream::iter(dumps)
+        .map(|(entry_offset, start, stop)| {
+            let elf_path = &elf_path;
+            let progress = ctx.progress;
+            async move {
+                let dump = run(
+                    Command::new("arm-none-eabi-objdump")
+                        .args(["-d", "-C"])
+                        .arg(format!("--start-address={start:#x}"))
+                        .arg(format!("--stop-address={stop:#x}"))
+                        .arg(elf_path),
+                    elf_path.with_extension("objdump.log"),
+                )
+                .await?;
+                progress.inc(1);
+                Ok::<_, Error>((entry_offset, dump))
+            }
+        })
+        .buffered(jobs)
+        .try_collect()
+        .await?;
+
+    let mut out = Vec::new();
+    for (entry_offset, dump) in outputs.drain(..) {
+        out.extend_from_slice(format!("\n// 0x{entry_offset:03x}\n").as_bytes());
+        out.extend_from_slice(&dump);
+    }
+    fs::write(ctx.root.join(format!("decomp/{}/jump.s", ctx.platform)), out).await?;
+
+    ctx.progress.finish_with_message("Done");
+    Ok(())
+}
+
+fn find_iter_single(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    let mut it = memmem::find_iter(haystack, needle);
+    match (it.next(), it.next()) {
+        (Some(offset), None) => Some(offset),
+        _ => None,
+    }
+}
+
+async fn read_table(ctx: &Context<'_>) -> Result<Table, Error> {
+    let latest = match latest_downloaded_os(ctx).await {
+        Ok(latest) => latest,
+        Err(Error::NoOsFound) => {
+            ctx.progress.println(format!(
+                "warning: no downloaded {} OS to read jump table from",
+                ctx.platform,
+            ));
+            return Ok([Entry::Present; 0x400]);
+        }
+        Err(e) => return Err(e),
+    };
+
+    let boot = fs::read(latest.join("BOOT.bin")).await?;
+
+    let Some(offset) = find_iter_single(&boot, b"bad function called\n") else {
+        return Err(Error::Static(
+            r"expected exactly one instance of 'bad function called\n' in OS binary",
+        ));
+    };
+    let string_addr = (ctx.platform.boot_load_address() + offset as u32).to_le_bytes();
+
+    let Some(offset) = find_iter_single(&boot, &string_addr) else {
+        return Err(Error::Static(
+            r"expected exactly one pointer to 'bad function called\n' in OS binary",
+        ));
+    };
+    let stub = (ctx.platform.boot_load_address() + offset as u32 - 7).to_le_bytes();
+
+    let assets = fs::read(latest.join("assets.bin")).await?;
+    let mut table = [Entry::Present; 0x400];
+    for (i, &entry) in assets[0..0x1000].as_chunks::<4>().0.iter().enumerate() {
+        if entry == [0; 4] {
+            table[i] = Entry::Null;
+        }
+        if entry == stub {
+            table[i] = Entry::Unimplemented;
+        }
+    }
+
+    Ok(table)
 }
 
 #[derive(Debug)]
@@ -155,14 +393,123 @@ impl Registers {
     }
 }
 
-async fn process(
-    ctx: &Context<'_>,
-    sdk_path: &Path,
-    bytes: Vec<u8>,
-    signatures: &HashMap<String, String>,
-    padding: usize,
-) -> Result<(), AnalysisError> {
-    let file = object::File::parse(&*bytes)?;
+/// Determines the size in bytes of the function beginning at `start`, an offset
+/// into `data`, when no symbol table records its length.
+///
+/// This is a recursive-descent sweep: it follows control flow from the entry,
+/// extending the function's extent to cover every instruction it can reach,
+/// every in-range branch target, and every PC-relative literal pool slot it
+/// loads from, stopping each path at a terminator (an unconditional branch,
+/// `bx`, or a `pop`/`ldm`/`ldr`/`mov` into `pc`). The returned length spans up
+/// to the highest such address, so it includes a trailing literal pool.
+///
+/// `thumb` selects the literal-pool alignment rule and must match the mode of
+/// `cs`. Branch targets are followed only when they land at or after `start`
+/// and within `data`. A `b` tail-call into a neighbouring function would still
+/// be followed, so the result is an upper bound when functions are not laid out
+/// contiguously.
+fn function_size(
+    cs: &Capstone,
+    data: &[u8],
+    start: u64,
+    thumb: bool,
+) -> Result<u64, capstone::Error> {
+    let mut worklist = vec![start];
+    let mut visited = HashSet::new();
+    let mut end = start;
+
+    while let Some(mut addr) = worklist.pop() {
+        while (addr as usize) < data.len() && visited.insert(addr) {
+            let insns = cs.disasm_count(&data[addr as usize..], addr, 1)?;
+            let Some(insn) = insns.iter().next() else {
+                break;
+            };
+            let detail = cs.insn_detail(insn)?;
+            let arch = detail.arch_detail();
+            let arm = arch.arm().unwrap();
+            let ops = arm.operands().collect_vec();
+            let id = ArmInsn::from(insn.id().0);
+            let next = insn.address() + insn.bytes().len() as u64;
+            end = end.max(next);
+
+            // A PC-relative load pulls from a literal pool, usually sited after
+            // the code; its slot extends the function's byte footprint.
+            if id == ArmInsn::ARM_INS_LDR
+                && let [
+                    _,
+                    ArmOperand {
+                        op_type: ArmOperandType::Mem(mem),
+                        ..
+                    },
+                ] = ops.as_slice()
+                && mem.base().0 == ArmReg::ARM_REG_PC as u16
+            {
+                let disp = if ops[1].subtracted {
+                    -(mem.disp() as i64)
+                } else {
+                    mem.disp() as i64
+                };
+                let lit_addr = if thumb {
+                    ((insn.address() + 4) & !3) as i64 + disp
+                } else {
+                    (insn.address() + 8) as i64 + disp
+                } as u64;
+                end = end.max(lit_addr + 4);
+            }
+
+            // Queue the destination of any direct branch for its own sweep.
+            if let (
+                ArmInsn::ARM_INS_B | ArmInsn::ARM_INS_CBZ | ArmInsn::ARM_INS_CBNZ,
+                Some(ArmOperand {
+                    op_type: ArmOperandType::Imm(target),
+                    ..
+                }),
+            ) = (id, ops.last())
+            {
+                let target = *target as u32 as u64;
+                if start <= target && (target as usize) < data.len() {
+                    worklist.push(target);
+                }
+            }
+
+            // Stop this path when control cannot fall through to `next`.
+            let unconditional = matches!(arm.cc(), ArmCC::ARM_CC_AL | ArmCC::ARM_CC_INVALID);
+            let writes_pc = ops.iter().any(|op| {
+                matches!(op.op_type, ArmOperandType::Reg(r) if r.0 == ArmReg::ARM_REG_PC as u16)
+            });
+            let terminates = unconditional
+                && match id {
+                    ArmInsn::ARM_INS_B | ArmInsn::ARM_INS_BX => true,
+                    ArmInsn::ARM_INS_POP
+                    | ArmInsn::ARM_INS_LDM
+                    | ArmInsn::ARM_INS_LDR
+                    | ArmInsn::ARM_INS_MOV => writes_pc,
+                    _ => false,
+                };
+            if terminates {
+                break;
+            }
+            addr = next;
+        }
+    }
+
+    Ok(end - start)
+}
+
+/// One jump-table wrapper recovered from an SDK archive object: its symbol name
+/// and the jump-table entry offsets it dispatches through (empty when it calls
+/// none).
+struct Function {
+    name: String,
+    calls: Vec<u32>,
+}
+
+/// Disassembles every text symbol in an SDK archive object and recovers, for
+/// each, the jump-table entries it calls. This is the structured core shared by
+/// jump-table consumers; rendering (signatures, annotations) is left to the
+/// caller.
+fn analyze(ctx: &Context<'_>, bytes: &[u8]) -> Result<Vec<Function>, AnalysisError> {
+    let file = object::File::parse(bytes)?;
 
     let cs_arm = Capstone::new()
         .arm()
@@ -177,46 +524,6 @@ async fn process(
         .build()
         .unwrap();
 
-    let mut out = formatdoc! {r#"
-        #include "sdk/{}/vex{}/include/{1}_api.h"
-
-        typedef uint32_t unknown;
-        typedef int (*rmTask_t)(void);
-
-    "#, sdk_path.file_name().unwrap().to_str().unwrap(),
-    ctx.platform.lower()}
-    .to_owned();
-
-    // Scheduler types used by known_signatures.h. The IQ2 SDK already declares these.
-    if ctx.platform != Platform::Iq2 {
-        out.push_str(indoc! {"
-            typedef void (*rmTaskSimple_t)(void);
-            typedef int (*rmTaskArg_t)(void *);
-
-            typedef enum {
-              kTaskUndefined = 0,
-              kTaskInitializing,
-              kTaskRunning,
-              kTaskTimerWait,
-              kTaskStop,
-              kTaskSemaphoreWait,
-              kTaskSemaphoreRunPending,
-              kTaskSuspended,
-              kTaskInitializeSuspended,
-              kTaskRunningSuspended,
-              kTaskTimerWaitSuspended,
-              kTaskSemaphoreWaitSuspended,
-              kTaskComplete = 99
-            } rmTaskStates;
-
-            typedef struct {
-              uint8_t nOwningTask;
-              uint8_t nLockCount;
-            } rmSemaphore;
-
-        "});
-    }
-
     let symbols = file
         .symbols()
         .filter(|s| s.kind() == SymbolKind::Text)
@@ -227,6 +534,7 @@ async fn process(
         ProgressStyle::with_template("{spinner} {prefix:>4} [{pos}/{len}] {msg}").unwrap(),
     );
 
+    let mut functions = Vec::with_capacity(symbols.len());
     for sym in symbols {
         let Some(idx) = sym.section_index() else {
             continue;
@@ -370,6 +678,67 @@ async fn process(
                 });
         }
 
+        functions.push(Function {
+            name: name.to_owned(),
+            calls,
+        });
+        ctx.progress.inc(1);
+    }
+
+    Ok(functions)
+}
+
+async fn process(
+    ctx: &Context<'_>,
+    sdk_path: &Path,
+    bytes: Vec<u8>,
+    signatures: &HashMap<String, String>,
+    table: &Table,
+    padding: usize,
+) -> Result<(), AnalysisError> {
+    let functions = analyze(ctx, &bytes)?;
+
+    let mut out = formatdoc! {r#"
+        #include "sdk/{}/vex{}/include/{1}_api.h"
+
+        typedef uint32_t unknown;
+        typedef int (*rmTask_t)(void);
+
+    "#, sdk_path.file_name().unwrap().to_str().unwrap(),
+    ctx.platform.lower()}
+    .to_owned();
+
+    // Scheduler types used by known_signatures.h. The IQ2 SDK already declares these.
+    if ctx.platform != Platform::Iq2 {
+        out.push_str(indoc! {"
+            typedef void (*rmTaskSimple_t)(void);
+            typedef int (*rmTaskArg_t)(void *);
+
+            typedef enum {
+              kTaskUndefined = 0,
+              kTaskInitializing,
+              kTaskRunning,
+              kTaskTimerWait,
+              kTaskStop,
+              kTaskSemaphoreWait,
+              kTaskSemaphoreRunPending,
+              kTaskSuspended,
+              kTaskInitializeSuspended,
+              kTaskRunningSuspended,
+              kTaskTimerWaitSuspended,
+              kTaskSemaphoreWaitSuspended,
+              kTaskComplete = 99
+            } rmTaskStates;
+
+            typedef struct {
+              uint8_t nOwningTask;
+              uint8_t nLockCount;
+            } rmSemaphore;
+
+        "});
+    }
+
+    for Function { name, calls } in &functions {
         let sig = match signatures.get(name) {
             Some(sig) => Cow::Borrowed(sig),
             None => Cow::Owned(format!("{:<padding$}{name}(/* unknown */);", "unknown ",)),
@@ -383,13 +752,17 @@ async fn process(
             writeln!(
                 out,
                 " // {}",
-                calls
-                    .iter()
-                    .format_with(", ", |value, f| f(&format_args!("0x{value:03x}")))
+                calls.iter().format_with(", ", |&value, f| f(&format_args!(
+                    "0x{value:03x}{}",
+                    match table[value as usize / 4] {
+                        Entry::Present => "",
+                        Entry::Null => " (null)",
+                        Entry::Unimplemented => " (unimplemented)",
+                    },
+                )))
             )
             .unwrap();
         }
-        ctx.progress.inc(1);
     }
 
     fs::write(

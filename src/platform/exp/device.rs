@@ -93,6 +93,8 @@ jump_table! {
     0x1b8 => pub fn vexDeviceTypeGetByIndex(index: u32) -> V5_DeviceType;
     0x1bc => pub fn vexDeviceTypeSetByIndex(index: u32, r#type: V5_DeviceType);
     0x1d8 => pub fn vexDeviceFlagsGetByIndex(index: u32) -> u32;
+    /// Unimplemented as of VEXos 1.0.8.
+    ///
     /// Get the reading of a generic sensor.
     ///
     /// Returns `0` if the device is not considered a generic sensor by VEXos. Note that this

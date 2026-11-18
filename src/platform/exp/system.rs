@@ -66,21 +66,34 @@ jump_table! {
     /// similar
     0x13c => pub fn vexSystemLinkAddrGet() -> u32;
     0x174 => pub fn vexSystemUsbStatus() -> u32;
+    /// Unimplemented as of VEXos 1.0.8.
     0x8c0 => pub fn vexSystemTimerStop();
+    /// Unimplemented as of VEXos 1.0.8.
     0x8c4 => pub fn vexSystemTimerClearInterrupt();
+    /// Unimplemented as of VEXos 1.0.8.
     0x8c8 => pub fn vexSystemTimerReinitForRtos(
         priority: u32,
         handler: unsafe extern "C" fn(data: *mut c_void),
     ) -> i32;
+    /// Unimplemented as of VEXos 1.0.8.
     0x8cc => pub fn vexSystemApplicationIRQHandler(ulICCIAR: u32);
+    /// Unimplemented as of VEXos 1.0.8.
     0x8d0 => pub fn vexSystemWatchdogReinitRtos() -> i32;
+    /// Unimplemented as of VEXos 1.0.8.
     0x8d4 => pub fn vexSystemWatchdogGet() -> u32;
+    /// Unimplemented as of VEXos 1.0.8.
     0x910 => pub fn vexSystemBoot();
+    /// Unimplemented as of VEXos 1.0.8.
     0x914 => pub fn vexSystemUndefinedException();
+    /// Unimplemented as of VEXos 1.0.8.
     0x918 => pub fn vexSystemFIQInterrupt();
+    /// Unimplemented as of VEXos 1.0.8.
     0x91c => pub fn vexSystemIRQInterrupt();
+    /// Unimplemented as of VEXos 1.0.8.
     0x920 => pub fn vexSystemSWInterrupt();
+    /// Unimplemented as of VEXos 1.0.8.
     0x924 => pub fn vexSystemDataAbortInterrupt();
+    /// Unimplemented as of VEXos 1.0.8.
     0x928 => pub fn vexSystemPrefetchAbortInterrupt();
 }
 
