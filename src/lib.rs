@@ -1,6 +1,24 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
+//! # vex-hal
+//!
+//! A Rust runtime for VEX EXP and V5 robots.
+//!
+//! # Example
+//!
+//! ```
+//! #![no_std]
+//! #![no_main]
+//!
+//! use vex_hal::prelude::*;
+//!
+//! #[vex_hal::main]
+//! async fn main(_peripherals: Peripherals) {
+//!     println!("Hello, World!")
+//! }
+//! ```
+
 #![no_std]
 
 use core::panic::PanicInfo;

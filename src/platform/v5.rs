@@ -3,6 +3,8 @@
 
 pub use vex_sdk_jumptable::*;
 
+pub type DeviceType = V5_DeviceType;
+
 pub fn exit() -> ! {
     unsafe { vexSystemExitRequest() };
     loop {}

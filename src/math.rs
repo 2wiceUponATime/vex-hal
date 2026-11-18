@@ -4,7 +4,7 @@
 
 use core::f64::consts::{FRAC_PI_2, FRAC_PI_4, FRAC_PI_8, PI, TAU};
 
-use derive_more::{Add, Div, Mul, Sub};
+use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use easy_ext::ext;
 use num_traits::{AsPrimitive, Euclid};
 
@@ -21,7 +21,22 @@ use num_traits::{AsPrimitive, Euclid};
 /// # Precision
 ///
 /// This type internally stores angles as *radians* inside of an `f64`.
-#[derive(Default, Clone, Copy, PartialEq, PartialOrd, Add, Div, Mul, Sub)]
+#[derive(
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    PartialOrd,
+    Add,
+    AddAssign,
+    Div,
+    DivAssign,
+    Mul,
+    MulAssign,
+    Sub,
+    SubAssign,
+    Neg,
+)]
 pub struct Angle {
     radians: f64,
 }

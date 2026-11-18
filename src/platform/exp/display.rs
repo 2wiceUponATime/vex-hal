@@ -75,7 +75,7 @@ jump_table! {
     /// # Arguments
     ///
     /// - `bVsyncWait`: Sleep the current task until the screen is ready to refresh.
-    /// - `bRunScheduler`: Call [`vexTasksRun`](crate::task::vexTasksRun) while waiting for a refresh.
+    /// - `bRunScheduler`: Call [`vexTasksRun`](super::vexTasksRun) while waiting for a refresh.
     0x7a0 => pub fn vexDisplayRender(bVsyncWait: bool, bRunScheduler: bool);
     /// Unimplemented as of VEXos 1.0.8.
     ///

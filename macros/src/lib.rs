@@ -6,6 +6,10 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::ItemFn;
 
+/// Defines the entry point for the program.
+///
+/// This attribute must be used exactly once within a program and be used on an `fn` or `async fn`
+/// with the return type [`()`](unit) or [`!`](never).
 #[proc_macro_attribute]
 pub fn main(attrs: TokenStream, item: TokenStream) -> TokenStream {
     main2(attrs.into(), item.into())

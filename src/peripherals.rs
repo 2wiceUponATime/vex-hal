@@ -9,6 +9,7 @@ use snafu::{Snafu, ensure};
 use crate::{platform::*, time::LowResolutionTime};
 
 pub mod motor;
+pub mod rotation;
 pub mod serial;
 
 /// Defines common functionality shared by all Smart Port devices.
@@ -29,7 +30,7 @@ pub trait SmartDevice {
     /// Determines if this device type is currently plugged into its [`SmartPort`].
     #[must_use]
     fn is_connected(&self) -> bool {
-        let mut device_types: [V5_DeviceType; V5_MAX_DEVICE_PORTS] = unsafe { core::mem::zeroed() };
+        let mut device_types: [DeviceType; V5_MAX_DEVICE_PORTS] = unsafe { core::mem::zeroed() };
         unsafe {
             vexDeviceGetStatus(device_types.as_mut_ptr());
         }
@@ -72,13 +73,13 @@ pub trait SmartDevice {
 /// This function provides the internal implementations of [`SmartDevice::validate_port`],
 /// [`SmartPort::validate_type`], and [`AdiPort::validate_expander`].
 pub(crate) fn validate_port(number: u8, device_type: SmartDeviceType) -> Result<(), PortError> {
-    let mut device_types: [V5_DeviceType; V5_MAX_DEVICE_PORTS] = unsafe { core::mem::zeroed() };
+    let mut device_types: [DeviceType; V5_MAX_DEVICE_PORTS] = unsafe { core::mem::zeroed() };
     unsafe {
         vexDeviceGetStatus(device_types.as_mut_ptr());
     }
 
     let connected_type: Option<SmartDeviceType> = match device_types[(number - 1) as usize] {
-        V5_DeviceType::kDeviceTypeNoSensor => None,
+        DeviceType::kDeviceTypeNoSensor => None,
         raw_type => Some(raw_type.into()),
     };
 
@@ -117,9 +118,7 @@ impl SmartPort {
     /// Creating new `SmartPort`s is inherently unsafe due to the possibility of constructing more
     /// than one device on the same port index allowing multiple mutable references to the same
     /// hardware device. This violates Rust's borrow checker guarantees. Prefer using
-    /// [`Peripherals`](crate::peripherals::Peripherals) to register devices if possible.
-    ///
-    /// For more information on safely creating peripherals, see [this page](https://vexide.dev/docs/peripherals/).
+    /// [`Peripherals`] to register devices if possible.
     #[must_use]
     pub const unsafe fn new(number: u8) -> Self {
         Self { number }
@@ -141,13 +140,13 @@ impl SmartPort {
     /// connected.
     #[must_use]
     pub fn device_type(&self) -> Option<SmartDeviceType> {
-        let mut device_types: [V5_DeviceType; V5_MAX_DEVICE_PORTS] = unsafe { core::mem::zeroed() };
+        let mut device_types: [DeviceType; V5_MAX_DEVICE_PORTS] = unsafe { core::mem::zeroed() };
         unsafe {
             vexDeviceGetStatus(device_types.as_mut_ptr());
         }
 
         match device_types[self.index() as usize] {
-            V5_DeviceType::kDeviceTypeNoSensor => None,
+            DeviceType::kDeviceTypeNoSensor => None,
             raw_type => Some(raw_type.into()),
         }
     }
@@ -218,27 +217,27 @@ pub enum SmartDeviceType {
 
     /// Inertial Sensor
     ///
-    /// This corresponds to the [`InertialSensor`](imu::InertialSensor) device.
+    /// This corresponds to the `InertialSensor` device.
     Imu,
 
     /// Distance Sensor
     ///
-    /// This corresponds to the [`DistanceSensor`](distance::DistanceSensor) device.
+    /// This corresponds to the `DistanceSensor` device.
     Distance,
 
     /// Vision Sensor
     ///
-    /// This corresponds to the [`VisionSensor`](vision::VisionSensor) device.
+    /// This corresponds to the `VisionSensor` device.
     Vision,
 
     /// AI Vision Sensor
     ///
-    /// This corresponds to the [`AiVisionSensor`](ai_vision::AiVisionSensor) device.
+    /// This corresponds to the `AiVisionSensor` device.
     AiVision,
 
     /// Workcell Electromagnet
     ///
-    /// This corresponds to the [`Electromagnet`](electromagnet::Electromagnet) device.
+    /// This corresponds to the `Electromagnet` device.
     Electromagnet,
 
     /// CTE Workcell Light Tower
@@ -249,12 +248,12 @@ pub enum SmartDeviceType {
 
     /// Optical Sensor
     ///
-    /// This corresponds to the [`OpticalSensor`](optical::OpticalSensor) device.
+    /// This corresponds to the `OpticalSensor` device.
     Optical,
 
     /// GPS Sensor
     ///
-    /// This corresponds to the [`GpsSensor`](gps::GpsSensor) device.
+    /// This corresponds to the `GpsSensor` device.
     Gps,
 
     /// Smart Radio
@@ -262,7 +261,7 @@ pub enum SmartDeviceType {
 
     /// ADI Expander
     ///
-    /// This corresponds to the [`AdiExpander`](expander::AdiExpander) device.
+    /// This corresponds to the `AdiExpander` device.
     Adi,
 
     /// Generic Serial Port
@@ -272,48 +271,48 @@ pub enum SmartDeviceType {
 
     /// Other device type code returned by the SDK that is currently unsupported, undocumented, or
     /// unknown.
-    Unknown(V5_DeviceType),
+    Unknown(DeviceType),
 }
 
-impl From<V5_DeviceType> for SmartDeviceType {
-    fn from(value: V5_DeviceType) -> Self {
+impl From<DeviceType> for SmartDeviceType {
+    fn from(value: DeviceType) -> Self {
         match value {
-            V5_DeviceType::kDeviceTypeMotorSensor => Self::Motor,
-            V5_DeviceType::kDeviceTypeAbsEncSensor => Self::Rotation,
-            V5_DeviceType::kDeviceTypeImuSensor => Self::Imu,
-            V5_DeviceType::kDeviceTypeDistanceSensor => Self::Distance,
-            V5_DeviceType::kDeviceTypeRadioSensor => Self::Radio,
-            V5_DeviceType::kDeviceTypeVisionSensor => Self::Vision,
-            V5_DeviceType::kDeviceTypeAdiSensor => Self::Adi,
-            V5_DeviceType::kDeviceTypeOpticalSensor => Self::Optical,
-            V5_DeviceType::kDeviceTypeMagnetSensor => Self::Electromagnet,
-            V5_DeviceType::kDeviceTypeGpsSensor => Self::Gps,
-            V5_DeviceType::kDeviceTypeLightTowerSensor => Self::LightTower,
-            V5_DeviceType::kDeviceTypeArmDevice => Self::Arm,
-            V5_DeviceType::kDeviceTypeAiVisionSensor => Self::AiVision,
-            V5_DeviceType::kDeviceTypeGenericSerial => Self::GenericSerial,
+            DeviceType::kDeviceTypeMotorSensor => Self::Motor,
+            DeviceType::kDeviceTypeAbsEncSensor => Self::Rotation,
+            DeviceType::kDeviceTypeImuSensor => Self::Imu,
+            DeviceType::kDeviceTypeDistanceSensor => Self::Distance,
+            DeviceType::kDeviceTypeRadioSensor => Self::Radio,
+            DeviceType::kDeviceTypeVisionSensor => Self::Vision,
+            DeviceType::kDeviceTypeAdiSensor => Self::Adi,
+            DeviceType::kDeviceTypeOpticalSensor => Self::Optical,
+            DeviceType::kDeviceTypeMagnetSensor => Self::Electromagnet,
+            DeviceType::kDeviceTypeGpsSensor => Self::Gps,
+            DeviceType::kDeviceTypeLightTowerSensor => Self::LightTower,
+            DeviceType::kDeviceTypeArmDevice => Self::Arm,
+            DeviceType::kDeviceTypeAiVisionSensor => Self::AiVision,
+            DeviceType::kDeviceTypeGenericSerial => Self::GenericSerial,
             other => Self::Unknown(other),
         }
     }
 }
 
-impl From<SmartDeviceType> for V5_DeviceType {
+impl From<SmartDeviceType> for DeviceType {
     fn from(value: SmartDeviceType) -> Self {
         match value {
-            SmartDeviceType::Motor => V5_DeviceType::kDeviceTypeMotorSensor,
-            SmartDeviceType::Rotation => V5_DeviceType::kDeviceTypeAbsEncSensor,
-            SmartDeviceType::Imu => V5_DeviceType::kDeviceTypeImuSensor,
-            SmartDeviceType::Distance => V5_DeviceType::kDeviceTypeDistanceSensor,
-            SmartDeviceType::Vision => V5_DeviceType::kDeviceTypeVisionSensor,
-            SmartDeviceType::AiVision => V5_DeviceType::kDeviceTypeAiVisionSensor,
-            SmartDeviceType::Electromagnet => V5_DeviceType::kDeviceTypeMagnetSensor,
-            SmartDeviceType::LightTower => V5_DeviceType::kDeviceTypeLightTowerSensor,
-            SmartDeviceType::Arm => V5_DeviceType::kDeviceTypeArmDevice,
-            SmartDeviceType::Optical => V5_DeviceType::kDeviceTypeOpticalSensor,
-            SmartDeviceType::Gps => V5_DeviceType::kDeviceTypeGpsSensor,
-            SmartDeviceType::Radio => V5_DeviceType::kDeviceTypeRadioSensor,
-            SmartDeviceType::Adi => V5_DeviceType::kDeviceTypeAdiSensor,
-            SmartDeviceType::GenericSerial => V5_DeviceType::kDeviceTypeGenericSerial,
+            SmartDeviceType::Motor => DeviceType::kDeviceTypeMotorSensor,
+            SmartDeviceType::Rotation => DeviceType::kDeviceTypeAbsEncSensor,
+            SmartDeviceType::Imu => DeviceType::kDeviceTypeImuSensor,
+            SmartDeviceType::Distance => DeviceType::kDeviceTypeDistanceSensor,
+            SmartDeviceType::Vision => DeviceType::kDeviceTypeVisionSensor,
+            SmartDeviceType::AiVision => DeviceType::kDeviceTypeAiVisionSensor,
+            SmartDeviceType::Electromagnet => DeviceType::kDeviceTypeMagnetSensor,
+            SmartDeviceType::LightTower => DeviceType::kDeviceTypeLightTowerSensor,
+            SmartDeviceType::Arm => DeviceType::kDeviceTypeArmDevice,
+            SmartDeviceType::Optical => DeviceType::kDeviceTypeOpticalSensor,
+            SmartDeviceType::Gps => DeviceType::kDeviceTypeGpsSensor,
+            SmartDeviceType::Radio => DeviceType::kDeviceTypeRadioSensor,
+            SmartDeviceType::Adi => DeviceType::kDeviceTypeAdiSensor,
+            SmartDeviceType::GenericSerial => DeviceType::kDeviceTypeGenericSerial,
             SmartDeviceType::Unknown(raw_type) => raw_type,
         }
     }

@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-// TODO: modify `vexide_async::task`'s doc comment and put it here
-
 extern crate alloc;
 
 use alloc::collections::BinaryHeap;

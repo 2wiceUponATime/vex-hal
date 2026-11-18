@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 
 # vex-hal
 
-A hardware abstraction layer for VEX V5 and EXP brains.
+A Rust runtime for VEX V5 and EXP robots.
 
 ## Attribution
 
