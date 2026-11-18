@@ -32,7 +32,6 @@ macro_rules! task_local {
         $vis:vis static $name:ident: $type:ty = $init:expr;
     } => {
         $(#[$attr])*
-        // publicly reexported in crate::task
         $vis static $name: $crate::runtime::local::LocalKey<$type> = {
             fn init() -> $type { $init }
             $crate::runtime::local::LocalKey::new(init)

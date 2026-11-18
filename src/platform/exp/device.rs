@@ -8,8 +8,6 @@ use core::ffi::c_uchar;
 
 use crate::platform::{V5_DeviceT, c_enum, jump_table};
 
-pub const V5_MAX_DEVICE_PORTS: usize = 32;
-
 c_enum! {
     pub struct V5_DeviceType: c_uchar {
         /// No device connected
@@ -73,7 +71,8 @@ c_enum! {
 jump_table! {
     /// Get the number of device ports currently present on this system.
     ///
-    /// As of VEXos 1.1.4, this number is the constant `23`.
+    /// As of VEXos 1.0.8, this number is the constant `12` - 2 more than the number of physical
+    /// ports on the brain.
     0x190 => pub fn vexDevicesGetNumber() -> u32;
     /// Get the number of devices of a specific type plugged into the brain.
     0x194 => pub fn vexDevicesGetNumberByType(device_type: V5_DeviceType) -> u32;
@@ -86,7 +85,7 @@ jump_table! {
     /// Returns -1 if a null pointer is passed, otherwise the number of devices
     /// that were written to the buffer.
     ///
-    /// The length of the buffer should be at most [`V5_MAX_DEVICE_PORTS`].
+    /// The length of the buffer should be at most [`V5_MAX_DEVICE_PORTS`](crate::platform::V5_MAX_DEVICE_PORTS).
     0x1a0 => pub fn vexDeviceGetStatus(devices: *mut V5_DeviceType) -> i32;
     /// Get the timestamp recorded by a device's internal clock.
     0x1b0 => pub fn vexDeviceGetTimestamp(device: V5_DeviceT) -> i32;

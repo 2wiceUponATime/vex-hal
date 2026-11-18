@@ -9,4 +9,4 @@ A hardware abstraction layer for VEX V5 and EXP brains.
 
 ## Attribution
 
-[`jump_table!`](src/platform.rs), `src/platform/exp/*.rs`, and `src/runtime/*.rs` contain material derived from [vex-sdk](https://github.com/vexide/vex-sdk) ([license](LICENSES/MIT.txt)).
+Files containing material derived from [vexide/vexide](https://github.com/vexide/vexide) or [vexide/vex-sdk](https://github.com/vexide/vex-sdk) are marked with a `SPDX-FileCopyrightText: ... vexide` header ([license](LICENSES/MIT.txt)).

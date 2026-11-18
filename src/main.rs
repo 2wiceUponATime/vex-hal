@@ -4,7 +4,7 @@
 #![no_std]
 #![no_main]
 
-use vex_hal::{peripherals::Peripherals, println};
+use vex_hal::prelude::*;
 
 #[vex_hal::main]
 fn main(_peripherals: Peripherals) {
