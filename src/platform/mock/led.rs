@@ -24,6 +24,7 @@ c_enum! {
 }
 
 mock! {
+    pub trait MockLed;
     pub fn vexDeviceLedSet(device: V5_DeviceT, value: V5_DeviceLedColor);
     pub fn vexDeviceLedRgbSet(device: V5_DeviceT, color: u32);
     pub fn vexDeviceLedGet(device: V5_DeviceT) -> V5_DeviceLedColor;

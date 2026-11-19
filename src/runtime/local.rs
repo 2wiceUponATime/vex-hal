@@ -14,7 +14,7 @@ use core::{
 
 use spin::LazyLock;
 
-use crate::runtime::executor::EXECUTOR;
+use crate::{platform::platform_local, runtime::executor::with_executor};
 
 #[derive(Debug)]
 pub struct LocalKey<T: 'static> {
@@ -215,7 +215,9 @@ pub(crate) struct TaskLocalStorage {
     locals: UnsafeCell<BTreeMap<u32, ErasedTaskLocal>>,
 }
 
-static FALLBACK_TLS: TaskLocalStorage = const { TaskLocalStorage::new() };
+platform_local! {
+    fn with_fallback_tls() -> &TaskLocalStorage = TaskLocalStorage::new();
+}
 
 impl TaskLocalStorage {
     pub(crate) const fn new() -> Self {
@@ -225,11 +227,13 @@ impl TaskLocalStorage {
     }
 
     pub(crate) fn scope(value: Rc<TaskLocalStorage>, scope: impl FnOnce()) {
-        let outer_scope = EXECUTOR.tls.borrow_mut().replace(value);
+        with_executor(|e| {
+            let outer_scope = e.tls.borrow_mut().replace(value);
 
-        scope();
+            scope();
 
-        *EXECUTOR.tls.borrow_mut() = outer_scope;
+            *e.tls.borrow_mut() = outer_scope;
+        });
     }
 
     /// Gets the Task Local Storage data for the current task.
@@ -237,10 +241,10 @@ impl TaskLocalStorage {
     where
         F: FnOnce(&Self) -> R,
     {
-        if let Some(tls) = EXECUTOR.tls.borrow().as_ref() {
-            f(tls)
+        if let Some(tls) = with_executor(|e| e.tls.borrow().clone()) {
+            f(&tls)
         } else {
-            f(&FALLBACK_TLS)
+            with_fallback_tls(f)
         }
     }
 
@@ -272,6 +276,3 @@ impl TaskLocalStorage {
         }
     }
 }
-
-// SAFETY: Same as `EXECUTOR`
-unsafe impl Sync for TaskLocalStorage {}

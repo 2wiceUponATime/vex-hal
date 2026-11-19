@@ -4,8 +4,8 @@
 
 use core::ffi::c_void;
 
-
 mock! {
+    pub trait MockTimer;
     pub fn vexDeviceTimerSet(
         index: i32,
         callback: unsafe extern "C" fn(*mut c_void),

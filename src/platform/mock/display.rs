@@ -29,6 +29,7 @@ pub struct v5_image {
 }
 
 mock! {
+    pub trait MockDisplay;
     /// Sets the color (encoded as RGB8) used for all future non-erasing display draws.
     pub fn vexDisplayForegroundColor(col: u32);
     /// Sets the color (encoded as RGB8) used for all future erasing display draws.

@@ -5,6 +5,7 @@
 //! Competition Control
 
 mock! {
+    pub trait MockCompetition;
     pub fn vexCompetitionStatus() -> u32;
     pub fn vexCompetitionControl(data: u32);
 }

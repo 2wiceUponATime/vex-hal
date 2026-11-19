@@ -33,6 +33,7 @@ pub struct date {
 }
 
 mock! {
+    pub trait MockSystem;
     /// special use only ! Talk to James.
     pub fn vexScratchMemoryPtr(ptr: *mut *mut c_void) -> i32;
     pub fn vexScratchMemoryLock() -> bool;

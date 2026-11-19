@@ -7,6 +7,7 @@
 use crate::platform::V5_DeviceT;
 
 mock! {
+    pub trait MockGenericSerial;
     pub fn vexDeviceGenericSerialEnable(device: V5_DeviceT, options: i32);
     pub fn vexDeviceGenericSerialBaudrate(device: V5_DeviceT, baudrate: i32);
     pub fn vexDeviceGenericSerialWriteChar(device: V5_DeviceT, c: u8) -> i32;

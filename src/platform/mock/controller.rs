@@ -72,6 +72,7 @@ impl V5_ControllerIndex {
 }
 
 mock! {
+    pub trait MockController;
     /// Get the value of a controller's data channel.
     pub fn vexControllerGet(id: V5_ControllerId, index: V5_ControllerIndex) -> i32;
     /// Returns `1` if the controller on the given ID is connected, or `0` if not.

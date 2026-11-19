@@ -9,6 +9,7 @@ use core::ffi::c_double;
 use crate::platform::V5_DeviceT;
 
 mock! {
+    pub trait MockDistance;
     pub fn vexDeviceDistanceDistanceGet(device: V5_DeviceT) -> u32;
     pub fn vexDeviceDistanceConfidenceGet(device: V5_DeviceT) -> u32;
     pub fn vexDeviceDistanceStatusGet(device: V5_DeviceT) -> u32;

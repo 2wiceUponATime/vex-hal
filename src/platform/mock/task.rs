@@ -43,6 +43,7 @@ c_enum! {
 }
 
 mock! {
+    pub trait MockTask;
     /// Creates an RTOS task
     ///
     /// Derived from <https://github.com/jpearman/vexcode-lvgllib6_X/blob/8ead3dab49665d4c98225d612672be28c7c2a425/src/v5lvgl.c#L17>

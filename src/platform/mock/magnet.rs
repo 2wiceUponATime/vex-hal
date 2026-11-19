@@ -18,6 +18,7 @@ c_enum! {
 }
 
 mock! {
+    pub trait MockMagnet;
     pub fn vexDeviceMagnetPowerSet(device: V5_DeviceT, value: i32, time: i32);
     pub fn vexDeviceMagnetPowerGet(device: V5_DeviceT) -> i32;
     pub fn vexDeviceMagnetPickup(device: V5_DeviceT, duration: V5_DeviceMagnetDuration);

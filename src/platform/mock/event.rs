@@ -4,8 +4,8 @@
 
 use core::ffi::c_void;
 
-
 mock! {
+    pub trait MockEvent;
     pub fn vexEventBroadcastAndWait(index: u32, timeout: i32);
     pub fn vexEventBroadcast(index: u32);
     pub fn vexEventAdd(index: u32, mask: u32, callback: unsafe extern "C" fn());

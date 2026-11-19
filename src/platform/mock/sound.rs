@@ -6,8 +6,8 @@
 
 use core::ffi::c_char;
 
-
 mock! {
+    pub trait MockSound;
     pub fn vexSoundPlay(slot: i32, volume: u32);
     pub fn vexSoundPlayTime(note: i32, volume: u32, duration: u32);
     pub fn vexSoundPlayFile(filename: *mut c_char, volume: u32, source: u32);

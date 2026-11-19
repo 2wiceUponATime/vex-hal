@@ -97,6 +97,7 @@ pub struct V5_DeviceAiVisionCode {
 }
 
 mock! {
+    pub trait MockAiVision;
     pub fn vexDeviceAiVisionClassNameGet(
         device: V5_DeviceT,
         id: i32,

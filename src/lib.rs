@@ -25,6 +25,8 @@ pub use vex_hal_macros::main;
 
 #[cfg(not(feature = "platform-mock"))]
 mod allocator;
+#[cfg(not(feature = "platform-mock"))]
+mod single_threaded;
 
 pub mod color;
 pub mod io;

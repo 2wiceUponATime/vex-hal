@@ -63,6 +63,7 @@ pub struct V5_DeviceMotorPid {
 }
 
 mock! {
+    pub trait MockMotor;
     pub fn vexDeviceMotorVelocitySet(device: V5_DeviceT, velocity: i32);
     pub fn vexDeviceMotorVelocityGet(device: V5_DeviceT) -> i32;
     pub fn vexDeviceMotorActualVelocityGet(device: V5_DeviceT) -> c_double;

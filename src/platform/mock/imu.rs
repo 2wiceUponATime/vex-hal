@@ -47,6 +47,7 @@ pub struct V5_DeviceImuAttitude {
 }
 
 mock! {
+    pub trait MockImu;
     /// Calibrates the IMU. This function is non-blocking.
     pub fn vexDeviceImuReset(device: V5_DeviceT);
     /// Returns the yaw-axis rotation of the IMU as an unbounded angle in degrees.

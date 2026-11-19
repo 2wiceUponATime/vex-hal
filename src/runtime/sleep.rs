@@ -17,7 +17,7 @@ use core::{
 };
 
 use crate::{
-    runtime::{executor::EXECUTOR, reactor::Sleeper},
+    runtime::{executor::with_executor, reactor::Sleeper},
     time::Instant,
 };
 
@@ -50,11 +50,13 @@ impl Future for Sleep {
             let this = self.get_mut();
             this.registered_waker = Some(cx.waker().clone());
 
-            EXECUTOR.with_reactor(|reactor| {
-                reactor.sleepers.push(Sleeper {
-                    deadline: this.deadline,
-                    waker: cx.waker().clone(),
-                });
+            with_executor(|e| {
+                e.with_reactor(|reactor| {
+                    reactor.sleepers.push(Sleeper {
+                        deadline: this.deadline,
+                        waker: cx.waker().clone(),
+                    });
+                })
             });
         }
 

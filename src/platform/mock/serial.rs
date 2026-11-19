@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-
 mock! {
+    pub trait MockSerial;
     /// Writes a single byte to the serial FIFO output buffer.
     ///
     /// # Arguments

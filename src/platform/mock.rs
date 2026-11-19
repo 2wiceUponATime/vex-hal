@@ -6,32 +6,32 @@ extern crate std;
 
 macro_rules! mock {
     {
+        $trait_vis:vis trait $trait:ident;
         $(
             $(#[$attr:meta])*
-            $vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)? $({ $($body:tt)* })?;
+            $vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)?;
         )*
     } => {
+        $trait_vis trait $trait {
+            $(
+                #[allow(non_snake_case, unused_variables, clippy::too_many_arguments)]
+                fn $name(&self, $($arg: $ty),*) $(-> $ret)? {
+                    Default::default()
+                }
+            )*
+        }
         $(
             $(#[$attr])*
-            #[allow(non_snake_case)]
-            #[allow(unused_variables)]
-            #[allow(clippy::too_many_arguments)]
+            #[allow(non_snake_case, unused_variables, clippy::too_many_arguments)]
             /// # Safety
             /// Calls to jumptable functions are unsafe because jumptable functions are owned by
             /// VEXos and we cannot guarantee their safety.
             $vis unsafe fn $name($($arg: $ty),*) $(-> $ret)? {
-                $crate::platform::mock::mock!(@body $({ $($body)* })?)
+                $crate::platform::mock::backend().$name($($arg),*)
             }
         )*
     };
-    (@body) => {
-        Default::default()
-    };
-    (@body { $($body:tt)* }) => {{
-        $($body)*
-    }}
 }
-use mock;
 
 /// Handle to an opaque [`V5_Device`].
 #[allow(non_camel_case_types)]
@@ -71,6 +71,8 @@ pub mod task;
 pub mod timer;
 pub mod touch;
 pub mod vision;
+
+use core::{cell::Cell, ptr::NonNull};
 
 pub use abs_enc::*;
 pub use adi::*;
@@ -112,3 +114,74 @@ pub fn exit() -> ! {
 pub fn yield_now() {
     std::thread::yield_now();
 }
+
+static DEFAULT: DefaultBackend = DefaultBackend;
+
+std::thread_local! {
+    static BACKEND: Cell<NonNull<dyn MockBackend>> = const { Cell::new(NonNull::from_ref(&DEFAULT)) };
+}
+
+pub fn backend() -> &'static dyn MockBackend {
+    // SAFETY: the pointer is either `&DEFAULT` or an override that `with_backend` keeps alive
+    // while it's installed.
+    unsafe { BACKEND.with(|c| &*c.get().as_ptr()) }
+}
+
+pub fn with_backend<R>(b: &dyn MockBackend, f: impl FnOnce() -> R) -> R {
+    // SAFETY: We erase `b`'s lifetime to `'static` only to store it in the
+    // thread-local (whose type cannot be lifetime-parameterized). The scope
+    // guard restores the previous value before `with_backend` returns - on both
+    // normal and unwinding exit - so the erased pointer is only ever read by
+    // `backend()` during `f()`, while `b` is still borrowed and alive.
+    let b: &'static dyn MockBackend = unsafe { core::mem::transmute(b) };
+    let prev = BACKEND.with(|c| c.replace(NonNull::from_ref(b)));
+    let _restore = scopeguard::guard((), |_| BACKEND.with(|c| c.set(prev)));
+    f()
+}
+
+/// A backend that return [`Default::default()`] for all calls.
+pub struct DefaultBackend;
+
+macro_rules! mock_backend {
+    ($first:ident $(, $trait:ident)* $(,)?) => {
+        pub trait MockBackend: $first $(+ $trait)* {}
+
+        impl $first for DefaultBackend {}
+        $(impl $trait for DefaultBackend {})+
+
+        impl<T: $first $(+ $trait)*> MockBackend for T {}
+    };
+}
+
+mock_backend!(
+    MockAbsEnc,
+    MockAdi,
+    MockAiVision,
+    MockArm,
+    MockBattery,
+    MockCompetition,
+    MockController,
+    MockDevice,
+    MockDisplay,
+    MockDistance,
+    MockEvent,
+    MockFile,
+    MockGenericRadio,
+    MockGenericSerial,
+    MockGps,
+    MockImu,
+    MockLed,
+    MockLightTower,
+    MockMagnet,
+    MockMotor,
+    MockOptical,
+    MockPneumatic,
+    MockRange,
+    MockSerial,
+    MockSound,
+    MockSystem,
+    MockTask,
+    MockTimer,
+    MockTouch,
+    MockVision,
+);

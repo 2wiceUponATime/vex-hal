@@ -33,7 +33,9 @@ use crate::{
 
 type Runnable = async_task::Runnable<TaskMetadata>;
 
-pub(crate) static EXECUTOR: Executor = Executor::new();
+platform::platform_local! {
+    pub(crate) fn with_executor() -> &Executor = Executor::new();
+}
 
 pub(crate) struct Executor {
     queue: RefCell<VecDeque<Runnable>>,
@@ -124,9 +126,3 @@ impl Executor {
         }
     }
 }
-
-// SAFETY: The target is single-core and the VEXos scheduler is cooperative
-// (tasks only switch at explicit yield points, see `platform::yield_now`).
-// EXECUTOR is therefore only ever touched from one execution context at a
-// time, so sharing it across the `static` is sound despite the RefCell.
-unsafe impl Sync for Executor {}

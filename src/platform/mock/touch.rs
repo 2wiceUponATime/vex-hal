@@ -28,6 +28,7 @@ pub struct V5_TouchStatus {
 }
 
 mock! {
+    pub trait MockTouch;
     pub fn vexTouchUserCallbackSet(
         callback: unsafe extern "C" fn(V5_TouchEvent, i32, i32),
     );

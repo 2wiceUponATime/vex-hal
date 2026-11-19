@@ -317,6 +317,7 @@ dependencies = [
  "libm",
  "mint",
  "num-traits",
+ "scopeguard",
  "snafu",
  "spin",
  "talc",

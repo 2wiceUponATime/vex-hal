@@ -7,6 +7,7 @@
 use core::ffi::c_double;
 
 mock! {
+    pub trait MockBattery;
     pub fn vexBatteryVoltageGet() -> i32;
     pub fn vexBatteryCurrentGet() -> i32;
     pub fn vexBatteryTemperatureGet() -> c_double;

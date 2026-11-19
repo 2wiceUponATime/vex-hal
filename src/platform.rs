@@ -42,8 +42,7 @@ macro_rules! jump_table {
         };
         $(
             $(#[$attr])*
-            #[allow(non_snake_case)]
-            #[allow(clippy::too_many_arguments)]
+            #[allow(non_snake_case, clippy::too_many_arguments)]
             /// # Safety
             /// Calls to jumptable functions are unsafe because jumptable functions are owned by
             /// VEXos and we cannot guarantee their safety.
@@ -107,3 +106,30 @@ use c_enum;
 pub const STDIO_CHANNEL: u32 = 1;
 /// Constant on all platforms
 pub const V5_MAX_DEVICE_PORTS: usize = 32;
+
+macro_rules! platform_local {
+    (
+        $(#[$meta:meta])*
+        $vis:vis fn $name:ident() -> &$t:ty = $init:expr;
+    ) => {
+        #[cfg(not(feature = "platform-mock"))]
+        $(#[$meta])*
+        $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
+            static S: $crate::single_threaded::SingleThreaded<$t> = unsafe {
+                $crate::single_threaded::SingleThreaded::new($init)
+            };
+            f(&S)
+        }
+
+        #[cfg(feature = "platform-mock")]
+        $(#[$meta])*
+        $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
+            extern crate std;
+            std::thread_local! {
+                static S: $t = const { $init };
+            }
+            S.with(f)
+        }
+    };
+}
+pub(crate) use platform_local;
