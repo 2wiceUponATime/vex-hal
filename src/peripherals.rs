@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 vexide
+// SPDX-FileCopyrightText: 2023 Gavin Niederman
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
@@ -8,7 +8,9 @@ use snafu::{Snafu, ensure};
 
 use crate::{platform::*, time::LowResolutionTime};
 
+pub mod distance;
 pub mod motor;
+pub mod optical;
 pub mod rotation;
 pub mod serial;
 pub mod vision;

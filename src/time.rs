@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: The Rust Project Developers
-// SPDX-FileCopyrightText: 2025 vexide
+// SPDX-FileCopyrightText: 2023 Gavin Niederman
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 

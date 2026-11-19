@@ -9,8 +9,6 @@
 use crate::platform::V5_DeviceT;
 
 mock! {
-    /// Unimplemented as of VEXos 1.0.8.
-    ///
     /// Rangefinder/Lidar - actual API to be determined
     pub fn vexDeviceRangeValueGet(device: V5_DeviceT) -> i32;
 }

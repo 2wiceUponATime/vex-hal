@@ -31,6 +31,13 @@ c_enum! {
     }
 }
 
+c_enum! {
+    pub struct V5_DeviceBumperState: c_uchar {
+        kBumperReleased = 0,
+        kBumperPressed = 1,
+    }
+}
+
 mock! {
     pub fn vexDeviceAdiPortConfigSet(
         device: V5_DeviceT,
@@ -52,13 +59,9 @@ mock! {
         nLength: u32,
         options: u32,
     );
-    // V5 only: pub fn vexDeviceBumperGet(device: V5_DeviceT) -> V5_DeviceBumperState;
-    /// Unimplemented as of VEXos 1.0.8.
+    pub fn vexDeviceBumperGet(device: V5_DeviceT) -> V5_DeviceBumperState;
     pub fn vexDeviceGyroReset(device: V5_DeviceT);
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexDeviceGyroHeadingGet(device: V5_DeviceT) -> c_double;
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexDeviceGyroDegreesGet(device: V5_DeviceT) -> c_double;
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexDeviceSonarValueGet(device: V5_DeviceT) -> i32;
 }

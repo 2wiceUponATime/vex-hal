@@ -64,33 +64,20 @@ mock! {
     /// similar
     pub fn vexSystemLinkAddrGet() -> u32;
     pub fn vexSystemUsbStatus() -> u32;
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemTimerStop();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemTimerClearInterrupt();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemTimerReinitForRtos(
         priority: u32,
         handler: unsafe extern "C" fn(data: *mut c_void),
     ) -> i32;
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemApplicationIRQHandler(ulICCIAR: u32);
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemWatchdogReinitRtos() -> i32;
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemWatchdogGet() -> u32;
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemBoot();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemUndefinedException();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemFIQInterrupt();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemIRQInterrupt();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemSWInterrupt();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemDataAbortInterrupt();
-    /// Unimplemented as of VEXos 1.0.8.
     pub fn vexSystemPrefetchAbortInterrupt();
 }

@@ -6,7 +6,6 @@
 
 use core::ffi::{VaList, c_char};
 
-
 /// A decoded image written to by VEXos.
 #[repr(C, packed)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -76,8 +75,6 @@ mock! {
     /// - `bVsyncWait`: Sleep the current task until the screen is ready to refresh.
     /// - `bRunScheduler`: Call [`vexTasksRun`](super::vexTasksRun) while waiting for a refresh.
     pub fn vexDisplayRender(bVsyncWait: bool, bRunScheduler: bool);
-    /// Unimplemented as of VEXos 1.0.8.
-    ///
     /// Disables double-buffered mode, switching back to immediate mode rendering.
     pub fn vexDisplayDoubleBufferDisable();
     /// Decodes a bitmap-encoded image passed to `ibuf` into a buffer of pixels that can be drawn to the display.

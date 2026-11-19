@@ -43,8 +43,6 @@ c_enum! {
 }
 
 mock! {
-    // TODO: `thread::spawn`` doesn't work here because `FALLBACK_TLS` and `EXECUTOR` rely on
-    // cooperative scheduling. Add a single-threaded task queue instead.
     /// Creates an RTOS task
     ///
     /// Derived from <https://github.com/jpearman/vexcode-lvgllib6_X/blob/8ead3dab49665d4c98225d612672be28c7c2a425/src/v5lvgl.c#L17>
@@ -80,16 +78,6 @@ mock! {
     pub fn vexTaskPriorityGet(task: rmTask_t) -> i32;
     pub fn vexTaskPrioritySet(task: rmTask_t, priority: i32);
     /// Ticks the VEXos scheduler
-    ///
-    /// The EXP Brain has a single Cortex-M7 core that is shared between VEXos and user code.
-    /// User code does not run on a dedicated processor; it runs as a task inside the same
-    /// cooperative scheduler as VEXos's own background tasks (the SDK's startup code registers
-    /// the user's `main` as a task with a 2mS interval). Those background tasks handle device
-    /// reads, serial flushing, USB, and other operations that must occur alongside user code,
-    /// so they only make progress when the running task yields to the scheduler.
-    ///
-    /// This function runs the scheduler from a context that is not itself a scheduled task. For
-    /// example, the SDK's `_exit` calls it in a loop when no task is currently running.
     pub fn vexTasksRun() -> i32;
     pub fn vexTaskYield();
     pub fn vexTaskCheckTimeslice();
@@ -132,8 +120,6 @@ mock! {
     pub fn vexTaskPrioritySetWithId(task: rmTaskArg_t, callback_id: c_int, priority: i32);
     pub fn vexTaskStateGetWithId(task: rmTaskArg_t, callback_id: c_int) -> rmTaskStates;
     pub fn vexTaskGetTaskIndexWithId(task: rmTaskArg_t, callback_id: c_int) -> i32;
-    /// Unimplemented as of VEXos 1.0.8.
-    ///
     /// Performs simple background processing.
     pub fn vexBackgroundProcessing();
     pub fn vexTaskWaitForExitWithId(task: rmTaskArg_t, callback_id: c_int);

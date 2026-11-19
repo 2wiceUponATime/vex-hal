@@ -8,6 +8,8 @@ use std::{
     path::PathBuf,
 };
 
+use itertools::Itertools;
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Platform {
     Exp,
@@ -53,11 +55,16 @@ impl Platform {
 
 fn main() {
     let platforms = [Platform::Exp, Platform::Iq2, Platform::V5, Platform::Mock];
-    let enabled: Vec<_> = platforms.iter().filter(|p| p.is_enabled()).collect();
+    let enabled: Vec<_> = platforms.into_iter().filter(|p| p.is_enabled()).collect();
     let platform = match enabled.as_slice() {
-        [one] => **one,
+        [one] => *one,
         [] => panic!("enable one of: platform-exp, platform-iq2, platform-v5, platform-mock"),
-        _ => panic!("platform features are mutually exclusive, got {enabled:?}"),
+        _ => panic!(
+            "platform features are mutually exclusive, got {}",
+            enabled
+                .iter()
+                .format_with(", ", |p, f| f(&format!("platform-{p}")))
+        ),
     };
 
     if platform == Platform::Mock {

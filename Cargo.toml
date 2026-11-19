@@ -52,3 +52,6 @@ exclude = ["xtask"]
 name = "vex-hal"
 test = false
 bench = false
+
+[build-dependencies]
+itertools = "0.15.0"

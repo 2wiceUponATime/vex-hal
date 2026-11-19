@@ -8,10 +8,14 @@ pub use crate::{
     math::{Angle, AngleExt, Direction},
     peripherals::{
         Peripherals, PortError, SmartDevice, SmartDeviceType, SmartPort,
+        distance::{DistanceObject, DistanceObjectError, DistanceReadyError, DistanceSensor},
         motor::{
             BrakeMode, Gearset, Motor, MotorControl, MotorFaults, MotorStatus, MotorType,
             SetGearsetError,
         },
+        optical::{Gesture, GestureDirection, OpticalRaw, OpticalRgb, OpticalSensor},
+        rotation::RotationSensor,
+        serial::{SerialError, SerialPort},
     },
     print, println,
     runtime::{
