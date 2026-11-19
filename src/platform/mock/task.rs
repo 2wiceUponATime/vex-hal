@@ -6,8 +6,6 @@
 
 #![allow(non_camel_case_types)]
 
-extern crate std;
-
 use core::ffi::{c_char, c_int, c_uchar, c_void};
 
 use crate::platform::c_enum;

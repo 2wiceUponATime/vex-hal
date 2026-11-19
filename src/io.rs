@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-#[cfg(feature = "platform-mock")]
-extern crate std;
-
 use core::fmt::{self, Write};
 
 #[cfg(not(feature = "platform-mock"))]
@@ -21,6 +18,7 @@ impl fmt::Write for Stdout {
         }
         #[cfg(feature = "platform-mock")]
         {
+            extern crate std;
             std::println!("{s}");
             Ok(())
         }

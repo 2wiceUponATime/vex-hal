@@ -10,7 +10,6 @@ edition = "2024"
 [features]
 default = ["platform-v5"]
 platform-exp = []
-platform-iq2 = []
 platform-v5 = ["dep:vex-sdk-jumptable", "dep:vex-sdk"]
 platform-mock = []
 
@@ -46,7 +45,6 @@ waker-fn = "1.2.0"
 
 [workspace]
 members = ["macros"]
-# If xtask is a workspace member, rust-analyzer will check it with the embedded target
 exclude = ["xtask"]
 
 [[bin]]

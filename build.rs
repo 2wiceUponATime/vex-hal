@@ -13,7 +13,6 @@ use itertools::Itertools;
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Platform {
     Exp,
-    Iq2,
     V5,
     Mock,
 }
@@ -22,7 +21,6 @@ impl Display for Platform {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
             Self::Exp => "exp",
-            Self::Iq2 => "iq2",
             Self::V5 => "v5",
             Self::Mock => "mock",
         })
@@ -46,7 +44,7 @@ impl Platform {
 
     pub fn target(&self) -> &str {
         match self {
-            Platform::Exp | Platform::Iq2 => "thumbv7em-none-eabihf",
+            Platform::Exp => "thumbv7em-none-eabihf",
             Platform::V5 => "thumbv7a-vex-v5",
             Platform::Mock => unimplemented!(),
         }
@@ -54,11 +52,11 @@ impl Platform {
 }
 
 fn main() {
-    let platforms = [Platform::Exp, Platform::Iq2, Platform::V5, Platform::Mock];
+    let platforms = [Platform::Exp, Platform::V5, Platform::Mock];
     let enabled: Vec<_> = platforms.into_iter().filter(|p| p.is_enabled()).collect();
     let platform = match enabled.as_slice() {
         [one] => *one,
-        [] => panic!("enable one of: platform-exp, platform-iq2, platform-v5, platform-mock"),
+        [] => panic!("enable one of: platform-exp, platform-v5, platform-mock"),
         _ => panic!(
             "platform features are mutually exclusive, got {}",
             enabled

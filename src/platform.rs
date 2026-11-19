@@ -7,11 +7,6 @@ mod exp;
 #[cfg(feature = "platform-exp")]
 pub use exp::*;
 
-#[cfg(feature = "platform-iq2")]
-mod iq2;
-#[cfg(feature = "platform-iq2")]
-pub use iq2::*;
-
 #[cfg(feature = "platform-v5")]
 mod v5;
 #[cfg(feature = "platform-v5")]
@@ -22,7 +17,7 @@ mod mock;
 #[cfg(feature = "platform-mock")]
 pub use mock::*;
 
-#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+#[cfg(feature = "platform-exp")]
 macro_rules! jump_table {
     {
         $(
@@ -57,11 +52,7 @@ macro_rules! jump_table {
     };
 }
 
-#[cfg(any(
-    feature = "platform-exp",
-    feature = "platform-iq2",
-    feature = "platform-mock"
-))]
+#[cfg(any(feature = "platform-exp", feature = "platform-mock"))]
 macro_rules! c_enum {
     {
         $(#[$meta:meta])*
@@ -97,7 +88,7 @@ macro_rules! c_enum {
     };
 }
 
-#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+#[cfg(feature = "platform-exp")]
 use {c_enum, jump_table};
 
 #[cfg(feature = "platform-mock")]
@@ -107,29 +98,43 @@ pub const STDIO_CHANNEL: u32 = 1;
 /// Constant on all platforms
 pub const V5_MAX_DEVICE_PORTS: usize = 32;
 
+#[cfg(not(feature = "platform-mock"))]
 macro_rules! platform_local {
     (
-        $(#[$meta:meta])*
-        $vis:vis fn $name:ident() -> &$t:ty = $init:expr;
+        $(
+            $(#[$meta:meta])*
+            $vis:vis fn $name:ident() -> &$t:ty = $init:expr;
+        )*
     ) => {
-        #[cfg(not(feature = "platform-mock"))]
-        $(#[$meta])*
-        $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
-            static S: $crate::single_threaded::SingleThreaded<$t> = unsafe {
-                $crate::single_threaded::SingleThreaded::new($init)
-            };
-            f(&S)
-        }
-
-        #[cfg(feature = "platform-mock")]
-        $(#[$meta])*
-        $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
-            extern crate std;
-            std::thread_local! {
-                static S: $t = const { $init };
+        $(
+            $(#[$meta])*
+            $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
+                static S: $crate::single_threaded::SingleThreaded<$t> = unsafe {
+                    $crate::single_threaded::SingleThreaded::new($init)
+                };
+                f(&S)
             }
-            S.with(f)
-        }
+        )*
+    };
+}
+#[cfg(feature = "platform-mock")]
+macro_rules! platform_local {
+    (
+        $(
+            $(#[$meta:meta])*
+            $vis:vis fn $name:ident() -> &$t:ty = $init:expr;
+        )*
+    ) => {
+        $(
+            $(#[$meta])*
+            $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
+                extern crate std;
+                std::thread_local! {
+                    static S: $t = const { $init };
+                }
+                S.with(f)
+            }
+        )*
     };
 }
 pub(crate) use platform_local;

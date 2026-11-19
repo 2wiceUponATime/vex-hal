@@ -86,11 +86,11 @@ unsafe extern "C" fn start() -> ! {
     }
 }
 
-/// EXP/IQ2 entry point, mirroring the SDK's `vexStartup`: VEXos calls this as a
+/// EXP entry point, mirroring the SDK's `vexStartup`: VEXos calls this as a
 /// normal function on its own stack. We clear BSS in assembly (before any Rust
 /// code can observe it), then tail-call [`init`], which returns directly to
 /// VEXos.
-#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+#[cfg(feature = "platform-exp")]
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".boot")]
@@ -114,13 +114,13 @@ unsafe extern "C" fn _boot() -> core::ffi::c_int {
 
 /// Registers the user program as the `MAIN` task with
 /// `vexTaskAdd(start, 2, "MAIN")` and returns 0 so the VEXos scheduler can run it.
-#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+#[cfg(feature = "platform-exp")]
 unsafe extern "C" fn init() -> core::ffi::c_int {
     unsafe { platform::vexTaskAdd(start, 2, c"MAIN".as_ptr()) };
     0
 }
 
-#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+#[cfg(feature = "platform-exp")]
 unsafe extern "C" fn start() -> core::ffi::c_int {
     unsafe {
         __vex_hal_main();

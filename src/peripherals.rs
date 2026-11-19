@@ -358,9 +358,9 @@ pub struct Peripherals {
     pub port_8: SmartPort,
     pub port_9: SmartPort,
     pub port_10: SmartPort,
-    #[cfg(any(feature = "platform-iq2", feature = "platform-v5"))]
+    #[cfg(feature = "platform-v5")]
     pub port_11: SmartPort,
-    #[cfg(any(feature = "platform-iq2", feature = "platform-v5"))]
+    #[cfg(feature = "platform-v5")]
     pub port_12: SmartPort,
     #[cfg(feature = "platform-v5")]
     pub port_13: SmartPort,
@@ -401,9 +401,9 @@ impl Peripherals {
                 port_8: SmartPort::new(8),
                 port_9: SmartPort::new(9),
                 port_10: SmartPort::new(10),
-                #[cfg(any(feature = "platform-iq2", feature = "platform-v5"))]
+                #[cfg(feature = "platform-v5")]
                 port_11: SmartPort::new(11),
-                #[cfg(any(feature = "platform-iq2", feature = "platform-v5"))]
+                #[cfg(feature = "platform-v5")]
                 port_12: SmartPort::new(12),
                 #[cfg(feature = "platform-v5")]
                 port_13: SmartPort::new(13),

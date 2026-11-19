@@ -100,27 +100,22 @@ impl Platform {
         }
     }
 
-    pub const fn build_flags(self) -> BuildFlags {
-        match self {
+    pub const fn build_flags(self) -> Result<BuildFlags, Error> {
+        Ok(match self {
             Platform::Exp => BuildFlags {
                 feature: "platform-exp",
                 target: "thumbv7em-none-eabihf",
                 target_cpu: "cortex-m7",
                 additional: &[],
             },
-            Platform::Iq2 => BuildFlags {
-                feature: "platform-iq2",
-                target: "thumbv7em-none-eabihf",
-                target_cpu: "cortex-m4",
-                additional: &[],
-            },
+            Platform::Iq2 => return Err(Error::Static("iq2 is not supported")),
             Platform::V5 => BuildFlags {
                 feature: "platform-v5",
                 target: "thumbv7a-vex-v5",
                 target_cpu: "cortex-a9",
                 additional: &["-Zbuild-std", "-Zbuild-std-features=compiler-builtins-mem"],
             },
-        }
+        })
     }
 }
 
@@ -413,7 +408,10 @@ async fn main() {
             target,
             target_cpu,
             additional,
-        } = platform.build_flags();
+        } = platform.build_flags().unwrap_or_else(|e| {
+            println!("{e}");
+            std::process::exit(2);
+        });
         let status = Command::new("cargo")
             .arg(sub)
             .args([
