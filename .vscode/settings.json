@@ -1,5 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 {
-  "rust-analyzer.linkedProjects": ["Cargo.toml", "xtask/Cargo.toml"]
+  "rust-analyzer.linkedProjects": [
+    "Cargo.toml",
+    "xtask/Cargo.toml"
+  ],
+  "rust-analyzer.cargo.features": [
+    "platform-mock"
+  ],
+  "rust-analyzer.cargo.noDefaultFeatures": true,
+  "rust-analyzer.cargo.target": "host-tuple",
+  "rust-analyzer.runnables.extraArgs": [
+    "--target",
+    "host-tuple"
+  ],
 }

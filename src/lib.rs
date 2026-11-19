@@ -15,16 +15,18 @@
 //!
 //! #[vex_hal::main]
 //! async fn main(_peripherals: Peripherals) {
-//!     println!("Hello, World!")
+//!     println!("Hello, World!");
 //! }
 //! ```
 
 #![no_std]
 
-use core::panic::PanicInfo;
 pub use vex_hal_macros::main;
 
+#[cfg(not(feature = "platform-mock"))]
 mod allocator;
+
+pub mod color;
 pub mod io;
 pub mod math;
 pub mod peripherals;
@@ -124,8 +126,18 @@ unsafe extern "C" fn start() -> core::ffi::c_int {
     }
 }
 
+#[cfg(all(feature = "platform-mock", not(test)))]
+#[unsafe(no_mangle)]
+extern "C" fn main() {
+    unsafe {
+        __vex_hal_main();
+        platform::exit();
+    }
+}
+
+#[cfg(not(feature = "platform-mock"))]
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
     println!("{info}");
     platform::exit();
 }

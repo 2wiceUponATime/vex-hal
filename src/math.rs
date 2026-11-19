@@ -8,6 +8,9 @@ use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubA
 use easy_ext::ext;
 use num_traits::{AsPrimitive, Euclid};
 
+pub use libm::{floorf, roundf, truncf};
+pub use mint::{EulerAngles, Point2, Quaternion, Vector3};
+
 /// An unbounded angular position.
 ///
 /// This type stores a unit-agnostic angle (a signed displacement from some rotation representing

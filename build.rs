@@ -13,14 +13,16 @@ enum Platform {
     Exp,
     Iq2,
     V5,
+    Mock,
 }
 
 impl Display for Platform {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            Platform::Exp => "exp",
-            Platform::Iq2 => "iq2",
-            Platform::V5 => "v5",
+            Self::Exp => "exp",
+            Self::Iq2 => "iq2",
+            Self::V5 => "v5",
+            Self::Mock => "mock",
         })
     }
 }
@@ -44,18 +46,23 @@ impl Platform {
         match self {
             Platform::Exp | Platform::Iq2 => "thumbv7em-none-eabihf",
             Platform::V5 => "thumbv7a-vex-v5",
+            Platform::Mock => unimplemented!(),
         }
     }
 }
 
 fn main() {
-    let platforms = [Platform::Exp, Platform::Iq2, Platform::V5];
+    let platforms = [Platform::Exp, Platform::Iq2, Platform::V5, Platform::Mock];
     let enabled: Vec<_> = platforms.iter().filter(|p| p.is_enabled()).collect();
     let platform = match enabled.as_slice() {
         [one] => **one,
-        [] => panic!("enable one of: platform-exp, platform-iq2, platform-v5"),
+        [] => panic!("enable one of: platform-exp, platform-iq2, platform-v5, platform-mock"),
         _ => panic!("platform features are mutually exclusive, got {enabled:?}"),
     };
+
+    if platform == Platform::Mock {
+        return;
+    }
 
     let target = env::var("TARGET").unwrap();
     let expected_target = platform.target();

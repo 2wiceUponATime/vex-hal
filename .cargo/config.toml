@@ -1,11 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Gabe Schrock
 # SPDX-License-Identifier: MIT
 
-[build]
-target = "thumbv7em-none-eabihf"
-
 [alias]
-build-exp = "build --no-default-features --features platform-exp --target thumbv7em-none-eabihf --config target.thumbv7em-none-eabihf.rustflags=['-Ctarget-cpu=cortex-m7']"
-build-iq2 = "build --no-default-features --features platform-iq2 --target thumbv7em-none-eabihf --config target.thumbv7em-none-eabihf.rustflags=['-Ctarget-cpu=cortex-m4']"
-build-v5 = "build --no-default-features --features platform-v5 --target thumbv7a-vex-v5 -Zbuild-std -Zbuild-std-features=compiler-builtins-mem"
 xtask = "run --manifest-path xtask/Cargo.toml --target host-tuple --"
+with-v5 = "xtask --platform v5"
+with-exp = "xtask --platform exp"
+with-iq2 = "xtask --platform iq2"
+test-host = "test --no-default-features --features platform-mock --target host-tuple"

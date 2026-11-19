@@ -11,6 +11,7 @@ use crate::{platform::*, time::LowResolutionTime};
 pub mod motor;
 pub mod rotation;
 pub mod serial;
+pub mod vision;
 
 /// Defines common functionality shared by all Smart Port devices.
 pub trait SmartDevice {

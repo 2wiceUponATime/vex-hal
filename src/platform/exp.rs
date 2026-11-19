@@ -80,7 +80,7 @@ pub fn exit() -> ! {
     unsafe { vexSystemExitRequest() };
     // Keep yielding to VEXos while it tears us down.
     loop {
-        unsafe { vexTaskSleep(1000) }
+        unsafe { vexTaskSleep(1000) };
     }
 }
 

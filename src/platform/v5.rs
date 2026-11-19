@@ -1,13 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-pub use vex_sdk_jumptable::*;
+// `vex-sdk` provides the full SDK API surface (types and `extern "system"` function
+// declarations). The matching `#[no_mangle]` implementations that dispatch through the VEXos jump
+// table are supplied by `vex-sdk-jumptable`, which is linked in below.
+pub use vex_sdk::*;
+
+extern crate vex_sdk_jumptable;
 
 pub type DeviceType = V5_DeviceType;
 
 pub fn exit() -> ! {
     unsafe { vexSystemExitRequest() };
-    loop {}
+    // Keep yielding to VEXos while it tears us down.
+    loop {
+        unsafe { vexTaskSleep(1000) };
+    }
 }
 
 pub fn yield_now() {

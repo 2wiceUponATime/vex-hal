@@ -6,6 +6,11 @@ name = "xtask"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+# No-op: lets rust-analyzer's shared `cargo.features` (platform-mock) resolve
+# against xtask, which is loaded as a separate workspace via linkedProjects.
+platform-mock = []
+
 [dependencies]
 capstone = "0.14.0"
 clap = { version = "4.6.7", features = ["derive"] }

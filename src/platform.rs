@@ -17,6 +17,11 @@ mod v5;
 #[cfg(feature = "platform-v5")]
 pub use v5::*;
 
+#[cfg(feature = "platform-mock")]
+mod mock;
+#[cfg(feature = "platform-mock")]
+pub use mock::*;
+
 #[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
 macro_rules! jump_table {
     {
@@ -53,7 +58,11 @@ macro_rules! jump_table {
     };
 }
 
-#[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
+#[cfg(any(
+    feature = "platform-exp",
+    feature = "platform-iq2",
+    feature = "platform-mock"
+))]
 macro_rules! c_enum {
     {
         $(#[$meta:meta])*
@@ -68,7 +77,7 @@ macro_rules! c_enum {
         #[derive(Default, Clone, Copy, PartialEq, Eq)]
         $(#[$meta])*
         #[allow(non_camel_case_types)]
-        $vis struct $name($inner);
+        $vis struct $name(pub $inner);
 
         #[allow(non_upper_case_globals)]
         impl $name {
@@ -91,6 +100,9 @@ macro_rules! c_enum {
 
 #[cfg(any(feature = "platform-exp", feature = "platform-iq2"))]
 use {c_enum, jump_table};
+
+#[cfg(feature = "platform-mock")]
+use c_enum;
 
 pub const STDIO_CHANNEL: u32 = 1;
 /// Constant on all platforms

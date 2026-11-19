@@ -99,6 +99,36 @@ impl Platform {
             Platform::V5 => unimplemented!(),
         }
     }
+
+    pub const fn build_flags(self) -> BuildFlags {
+        match self {
+            Platform::Exp => BuildFlags {
+                feature: "platform-exp",
+                target: "thumbv7em-none-eabihf",
+                target_cpu: "cortex-m7",
+                additional: &[],
+            },
+            Platform::Iq2 => BuildFlags {
+                feature: "platform-iq2",
+                target: "thumbv7em-none-eabihf",
+                target_cpu: "cortex-m4",
+                additional: &[],
+            },
+            Platform::V5 => BuildFlags {
+                feature: "platform-v5",
+                target: "thumbv7a-vex-v5",
+                target_cpu: "cortex-a9",
+                additional: &["-Zbuild-std", "-Zbuild-std-features=compiler-builtins-mem"],
+            },
+        }
+    }
+}
+
+struct BuildFlags {
+    feature: &'static str,
+    target: &'static str,
+    target_cpu: &'static str,
+    additional: &'static [&'static str],
 }
 
 fn as_platform_array(platform: Option<Platform>) -> Vec<Platform> {
@@ -111,7 +141,7 @@ fn as_platform_array(platform: Option<Platform>) -> Vec<Platform> {
 #[derive(Debug, Parser)]
 struct Cli {
     /// Platform (defaults to all)
-    #[arg(long)]
+    #[arg(long, global = true)]
     platform: Option<Platform>,
 
     #[command(subcommand)]
@@ -132,6 +162,9 @@ enum Commands {
     DisJumpTable,
     /// Extract the offsets of functions in the jump table
     ExtractJumpTable,
+    /// Forwarded to cargo with platform flags
+    #[command(external_subcommand)]
+    Cargo(Vec<String>),
 }
 
 struct Context<'a> {
@@ -369,6 +402,36 @@ async fn latest_downloaded_os(ctx: &Context<'_>) -> Result<PathBuf, Error> {
 async fn main() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap();
     let cli = Cli::parse();
+    if let Commands::Cargo(args) = cli.command {
+        let Some(platform) = cli.platform else {
+            eprintln!("error: `--platform` is required when forwarding to cargo");
+            std::process::exit(2);
+        };
+        let (sub, rest) = args.split_first().unwrap();
+        let BuildFlags {
+            feature,
+            target,
+            target_cpu,
+            additional,
+        } = platform.build_flags();
+        let status = Command::new("cargo")
+            .arg(sub)
+            .args([
+                "--no-default-features",
+                "--features",
+                feature,
+                "--target",
+                target,
+                "--config",
+                &format!("target.{target}.rustflags=['-Ctarget_cpu={target_cpu}']"),
+            ])
+            .args(additional)
+            .args(rest)
+            .status()
+            .await
+            .unwrap();
+        std::process::exit(status.code().unwrap_or(1));
+    }
     let mp = MultiProgress::new();
     let style = ProgressStyle::with_template("{spinner} {prefix:>4} {msg}").unwrap();
     join_all(
@@ -384,13 +447,14 @@ async fn main() {
                     progress: &pb,
                     root,
                 };
-                if let Err(e) = match cli.command {
+                if let Err(e) = match &cli.command {
                     Commands::DownloadSdk => download_sdk(ctx).await,
                     Commands::DownloadOs => download_os(ctx).await,
                     Commands::ExtractSdkLibs => extract_sdk_libs(ctx).await,
                     Commands::Dis => disassemble(ctx).await,
                     Commands::DisJumpTable => disassemble_jump_table(ctx).await,
                     Commands::ExtractJumpTable => extract_jump_table(ctx).await,
+                    Commands::Cargo(_) => unreachable!(),
                 } {
                     pb.abandon_with_message(format!("error: {e}"));
                 }

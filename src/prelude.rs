@@ -4,6 +4,7 @@
 pub use core::time::Duration;
 
 pub use crate::{
+    color::Color,
     math::{Angle, AngleExt, Direction},
     peripherals::{
         Peripherals, PortError, SmartDevice, SmartDeviceType, SmartPort,
