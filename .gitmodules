@@ -1,6 +1,0 @@
-# SPDX-FileCopyrightText: 2026 Gabe Schrock
-# SPDX-License-Identifier: MIT
-
-[submodule "vex-sdk"]
-	path = vex-sdk
-	url = https://github.com/vexide/vex-sdk
