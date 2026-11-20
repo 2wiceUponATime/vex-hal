@@ -20,6 +20,26 @@ macro_rules! mock {
                 }
             )*
         }
+
+        impl $trait for $crate::platform::DefaultBackend {}
+
+        impl $trait for $crate::platform::PrintBackend {
+            $(
+                #[allow(non_snake_case, clippy::too_many_arguments)]
+                fn $name(&self, $($arg: $ty),*) $(-> $ret)? {
+                    extern crate std;
+                    use std::io::Write;
+
+                    let mut out = std::io::stdout().lock();
+                    write!(out, concat!(stringify!($name), "(")).unwrap();
+                    $crate::platform::mock::mock!(@print_body out, $($arg),*);
+                    writeln!(out, ")").unwrap();
+
+                    Default::default()
+                }
+            )+
+        }
+
         $(
             $(#[$attr])*
             #[allow(non_snake_case, unused_variables, clippy::too_many_arguments)]
@@ -31,7 +51,13 @@ macro_rules! mock {
             }
         )*
     };
+    (@print_body $out:ident,) => {};
+    (@print_body $out:ident, $first:ident $(, $rest:ident)*) => {
+        write!($out, "{:?}", $first).unwrap();
+        $(write!($out, ", {:?}", $rest).unwrap();)*
+    };
 }
+use mock;
 
 /// Handle to an opaque [`V5_Device`].
 #[allow(non_camel_case_types)]
@@ -105,8 +131,6 @@ pub use timer::*;
 pub use touch::*;
 pub use vision::*;
 
-pub type DeviceType = V5_DeviceType;
-
 pub fn exit() -> ! {
     std::process::exit(0);
 }
@@ -142,12 +166,12 @@ pub fn with_backend<R>(b: &dyn MockBackend, f: impl FnOnce() -> R) -> R {
 /// A backend that return [`Default::default()`] for all calls.
 pub struct DefaultBackend;
 
+/// A backend that logs all calls to stdout and returns [`Default::default()`].
+pub struct PrintBackend;
+
 macro_rules! mock_backend {
     ($first:ident $(, $trait:ident)* $(,)?) => {
         pub trait MockBackend: $first $(+ $trait)* {}
-
-        impl $first for DefaultBackend {}
-        $(impl $trait for DefaultBackend {})+
 
         impl<T: $first $(+ $trait)*> MockBackend for T {}
     };

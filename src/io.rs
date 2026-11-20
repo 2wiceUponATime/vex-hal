@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
+extern crate alloc;
+
 use core::fmt::{self, Write};
 
 #[cfg(not(feature = "platform-mock"))]
@@ -19,7 +21,7 @@ impl fmt::Write for Stdout {
         #[cfg(feature = "platform-mock")]
         {
             extern crate std;
-            std::println!("{s}");
+            std::print!("{s}");
             Ok(())
         }
     }
@@ -30,6 +32,10 @@ pub fn _print(args: fmt::Arguments) {
     let _ = Stdout.write_fmt(args);
 }
 
+/// Prints to the standard output.
+///
+/// Equivalent to the [`println!`] macro except that a newline is not printed at the end of the
+/// message.
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => {
@@ -37,6 +43,10 @@ macro_rules! print {
     };
 }
 
+/// Prints to the standard output, with a newline.
+///
+/// This macro uses the same syntax as [`format`](alloc::format), but writes to the standard output
+/// instead. See [`core::fmt`] for more information.
 #[macro_export]
 macro_rules! println {
     () => {

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Gabe Schrock
+// SPDX-License-Identifier: MIT
+
 pub(crate) struct SingleThreaded<T>(T);
 
 impl<T> SingleThreaded<T> {

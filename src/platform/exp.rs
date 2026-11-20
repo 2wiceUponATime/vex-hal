@@ -72,8 +72,6 @@ pub use timer::*;
 pub use touch::*;
 pub use vision::*;
 
-pub type DeviceType = V5_DeviceType;
-
 pub const JUMP_TABLE_START: usize = 0x301fc000;
 
 pub fn exit() -> ! {

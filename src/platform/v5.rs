@@ -8,8 +8,6 @@ pub use vex_sdk::*;
 
 extern crate vex_sdk_jumptable;
 
-pub type DeviceType = V5_DeviceType;
-
 pub fn exit() -> ! {
     unsafe { vexSystemExitRequest() };
     // Keep yielding to VEXos while it tears us down.
