@@ -58,7 +58,8 @@ macro_rules! variadic {
     (
         $(
             $(#[$attr:meta])*
-            $vis:vis fn $name:ident($($arg:ident: $ty:ty,)* ... $(,)?) $(-> $ret:ty)? = $inner:ident;
+            $vis:vis fn $name:ident($($arg:ident: $ty:ty,)* ... $(,)?) $(-> $ret:ty)?
+                = $inner:ident;
         )*
     ) => {
         $(

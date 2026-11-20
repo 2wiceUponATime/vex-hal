@@ -7,7 +7,7 @@
 use crate::platform::V5_DeviceT;
 
 mock! {
-    pub trait MockAbsEnc;
+    AbsEnc:
     pub fn vexDeviceAbsEncReset(device: V5_DeviceT);
     pub fn vexDeviceAbsEncPositionSet(device: V5_DeviceT, position: i32);
     pub fn vexDeviceAbsEncPositionGet(device: V5_DeviceT) -> i32;

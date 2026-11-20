@@ -31,9 +31,10 @@
 //!
 //! # `smart-leds-trait` Integration
 //!
-//! vex-hal implements the [`SmartLedsWrite`] trait from the [`smart-leds-rs`](https://github.com/smart-leds-rs)
-//! ecosystem on [`AdiAddrLed`]. This is useful if you need more advanced features for controlling
-//! the strip, such as gradients or gamma correction.
+//! vex-hal implements the [`SmartLedsWrite`] trait from the
+//! [`smart-leds-rs`](https://github.com/smart-leds-rs) ecosystem on [`AdiAddrLed`]. This is useful
+//! if you need more advanced features for controlling the strip, such as gradients or gamma
+//! correction.
 //!
 //! [WS2812B]: https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf
 //! [74HCT125 buffer]: https://www.diodes.com/assets/Datasheets/74HCT125.pdf

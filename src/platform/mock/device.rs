@@ -69,7 +69,7 @@ c_enum! {
 }
 
 mock! {
-    pub trait MockDevice;
+    Device:
     /// Get the number of device ports currently present on this system.
     ///
     /// As of VEXos 1.0.8, this number is the constant `12` - 2 more than the number of physical

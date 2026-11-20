@@ -173,6 +173,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "pastey"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4"
+
+[[package]]
 name = "pin-project"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -340,7 +346,7 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 
 [[package]]
 name = "vex-hal"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-task",
  "bitflags",
@@ -352,6 +358,7 @@ dependencies = [
  "libm",
  "mint",
  "num-traits",
+ "pastey",
  "pin-project",
  "scopeguard",
  "smart-leds-trait",

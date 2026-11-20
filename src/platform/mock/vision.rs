@@ -94,7 +94,7 @@ c_enum! {
 }
 
 mock! {
-    pub trait MockVision;
+    Vision:
     pub fn vexDeviceVisionModeSet(device: V5_DeviceT, mode: V5VisionMode);
     pub fn vexDeviceVisionModeGet(device: V5_DeviceT) -> V5VisionMode;
     pub fn vexDeviceVisionObjectCountGet(device: V5_DeviceT) -> i32;

@@ -45,7 +45,7 @@ pub struct V5_DeviceGpsQuaternion {
 }
 
 mock! {
-    pub trait MockGps;
+    Gps:
     pub fn vexDeviceGpsReset(device: V5_DeviceT);
     pub fn vexDeviceGpsHeadingGet(device: V5_DeviceT) -> c_double;
     pub fn vexDeviceGpsDegreesGet(device: V5_DeviceT) -> c_double;

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 mock! {
-    pub trait MockSerial;
+    Serial:
     /// Writes a single byte to the serial FIFO output buffer.
     ///
     /// # Arguments

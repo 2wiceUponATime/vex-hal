@@ -106,7 +106,8 @@ impl Motor {
         direction: Direction,
         motor_type: MotorType,
     ) -> Self {
-        let device = unsafe { port.device_handle() }; // SAFETY: This function is only called once on this port.
+        // SAFETY: This function is only called once on this port.
+        let device = unsafe { port.device_handle() };
 
         // NOTE: SDK properly stores device state when unplugged, meaning that we can safely set
         // these without consequence even if the device is not available. This is an edge case for

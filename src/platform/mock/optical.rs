@@ -40,7 +40,7 @@ pub struct V5_DeviceOpticalGesture {
 }
 
 mock! {
-    pub trait MockOptical;
+    Optical:
     pub fn vexDeviceOpticalHueGet(device: V5_DeviceT) -> c_double;
     pub fn vexDeviceOpticalSatGet(device: V5_DeviceT) -> c_double;
     pub fn vexDeviceOpticalBrightnessGet(device: V5_DeviceT) -> c_double;

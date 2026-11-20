@@ -33,18 +33,18 @@ pub struct date {
 }
 
 mock! {
-    pub trait MockSystem;
+    System<'a>:
     /// special use only ! Talk to James.
     pub fn vexScratchMemoryPtr(ptr: *mut *mut c_void) -> i32;
     pub fn vexScratchMemoryLock() -> bool;
     pub fn vexScratchMemoryUnlock();
     pub fn vexBreak(filehash: u32, tag: u32);
-    pub fn vex_vsprintf(out: *mut c_char, format: *const c_char, args: VaList);
-    pub fn vex_vsnprintf(
+    pub fn vex_vsprintf<'a>(out: *mut c_char, format: *const c_char, args: VaList<'a>);
+    pub fn vex_vsnprintf<'a>(
         out: *mut c_char,
         max_len: u32,
         format: *const c_char,
-        args: VaList,
+        args: VaList<'a>,
     );
     /// Returns the time since program start with millisecond precision.
     pub fn vexSystemTimeGet() -> u32;

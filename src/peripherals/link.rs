@@ -41,7 +41,8 @@ use crate::{
 
 /// VEXLink Wireless Radio Link
 ///
-/// VEXLink is a point-to-point wireless communications protocol between two VEXNet radios. For further information, see <https://www.vexforum.com/t/vexlink-documentaton/84538>
+/// VEXLink is a point-to-point wireless communications protocol between two VEXNet radios. For
+/// further information, see <https://www.vexforum.com/t/vexlink-documentaton/84538>
 #[derive(Debug, Eq, PartialEq)]
 pub struct RadioLink {
     port: SmartPort,

@@ -6,38 +6,83 @@ extern crate std;
 
 macro_rules! mock {
     {
-        $trait_vis:vis trait $trait:ident;
+        $category:ident $(<$($gen:lifetime),+ $(,)?>)?:
         $(
             $(#[$attr:meta])*
-            $vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)?;
+            $vis:vis fn $name:ident
+                $(<$($fn_gen:lifetime),+ $(,)?>)?
+                ($($arg:ident: $ty:ty),* $(,)?) $(-> $ret:ty)?;
         )*
-    } => {
-        $trait_vis trait $trait {
+    } => {::pastey::paste! {
+        #[derive(Debug)]
+        #[allow(non_snake_case)]
+        pub enum [<$category Call>]$(<$($gen),+>)? {
+            $([<$name:camel>] {
+                $($arg: $ty,)*
+            }),*
+        }
+
+        impl $(<$($gen),+>)? [<$category Call>]$(<$($gen),+>)? {
+            pub fn default_ret(&self) -> [<$category Ret>] {
+                match self {
+                    $(Self::[<$name:camel>] { .. } => {
+                        $crate::platform::mock::mock!(
+                            @ret [<$category Ret>],
+                            Default::default(),
+                            $([<$name:camel>]($ret))?
+                        )
+                    })*
+                }
+            }
+        }
+
+        pub enum [<$category Ret>] {
+            $($(
+                [<$name:camel>]($ret),
+            )?)*
+            Unit,
+        }
+
+        impl [<$category Ret>] {
+            pub fn is_unit(&self) -> bool {
+                matches!(self, Self::Unit)
+            }
+
+            $($(
+                #[allow(non_snake_case)]
+                pub fn [<into_ $name>](self) -> Option<$ret> {
+                    #[allow(unreachable_patterns)]
+                    match self {
+                        Self::[<$name:camel>](value) => Some(value),
+                        _ => None,
+                    }
+                }
+            )?)*
+        }
+
+        pub trait [<$category Fns>] {
             $(
                 #[allow(non_snake_case, unused_variables, clippy::too_many_arguments)]
-                fn $name(&self, $($arg: $ty),*) $(-> $ret)? {
+                fn $name $(<$($fn_gen),+>)?(&self, $($arg: $ty),*) $(-> $ret)? {
                     Default::default()
                 }
             )*
-        }
 
-        impl $trait for $crate::platform::DefaultBackend {}
-
-        impl $trait for $crate::platform::PrintBackend {
-            $(
-                #[allow(non_snake_case, clippy::too_many_arguments)]
-                fn $name(&self, $($arg: $ty),*) $(-> $ret)? {
-                    extern crate std;
-                    use std::io::Write;
-
-                    let mut out = std::io::stdout().lock();
-                    write!(out, concat!(stringify!($name), "(")).unwrap();
-                    $crate::platform::mock::mock!(@print_body out, $($arg),*);
-                    writeln!(out, ")").unwrap();
-
-                    Default::default()
+            fn [<handle_ $category:snake>](&self, call: [<$category Call>]) -> [<$category Ret>] {
+                match call {
+                    $([<$category Call>]::[<$name:camel>] {
+                        $($arg,)*
+                    } => {
+                        #[allow(unused_variables)]
+                        let result = self.$name($($arg),*);
+                        $crate::platform::mock::mock!(
+                            @ret [<$category Ret>],
+                            result,
+                            $([<$name:camel>]($ret))?
+                        )
+                    })*
                 }
-            )+
+            }
         }
 
         $(
@@ -46,15 +91,34 @@ macro_rules! mock {
             /// # Safety
             /// Calls to jumptable functions are unsafe because jumptable functions are owned by
             /// VEXos and we cannot guarantee their safety.
-            $vis unsafe fn $name($($arg: $ty),*) $(-> $ret)? {
-                $crate::platform::mock::backend().$name($($arg),*)
+            $vis unsafe fn $name $(<$($fn_gen),+>)?($($arg: $ty),*) $(-> $ret)? {
+                let ret = $crate::platform::mock::backend()
+                    .[<handle_ $category:snake>](
+                        [<$category Call>]::[<$name:camel>] {
+                            $($arg,)*
+                        }
+                    );
+                $crate::platform::mock::mock!(@unwrap [<$category Ret>], ret $(, $name $ret)?)
             }
         )*
+    }};
+
+    (@unwrap $ty:ident, $ret:ident) => {
+        if !$ret.is_unit() {
+            panic!(concat!("expected ", stringify!($ty), "::Unit"));
+        }
     };
-    (@print_body $out:ident,) => {};
-    (@print_body $out:ident, $first:ident $(, $rest:ident)*) => {
-        write!($out, "{:?}", $first).unwrap();
-        $(write!($out, ", {:?}", $rest).unwrap();)*
+    (@unwrap $ty:ident, $ret:ident, $func:ident $t:ty) => {::pastey::paste! {
+        $ret
+            .[<into_ $func>]()
+            .expect(concat!("expected ", stringify!($ty), "::", stringify!([<$func:camel>])))
+    }};
+
+    (@ret $ty:ident, $default:expr,) => {
+        $ty::Unit
+    };
+    (@ret $ty:ident, $default:expr, $variant:ident($ret:ty)) => {
+        $ty::$variant($default)
     };
 }
 use mock;
@@ -142,7 +206,9 @@ pub fn yield_now() {
 static DEFAULT: DefaultBackend = DefaultBackend;
 
 std::thread_local! {
-    static BACKEND: Cell<NonNull<dyn MockBackend>> = const { Cell::new(NonNull::from_ref(&DEFAULT)) };
+    static BACKEND: Cell<NonNull<dyn MockBackend>> = const {
+        Cell::new(NonNull::from_ref(&DEFAULT))
+    };
 }
 
 pub fn backend() -> &'static dyn MockBackend {
@@ -166,46 +232,79 @@ pub fn with_backend<R>(b: &dyn MockBackend, f: impl FnOnce() -> R) -> R {
 /// A backend that return [`Default::default()`] for all calls.
 pub struct DefaultBackend;
 
+impl MockBackend for DefaultBackend {}
+
 /// A backend that logs all calls to stdout and returns [`Default::default()`].
 pub struct PrintBackend;
 
-macro_rules! mock_backend {
-    ($first:ident $(, $trait:ident)* $(,)?) => {
-        pub trait MockBackend: $first $(+ $trait)* {}
+pub struct Fns<T>(pub T);
 
-        impl<T: $first $(+ $trait)*> MockBackend for T {}
-    };
+macro_rules! mock_backend {
+    ($($category:ident),* $(,)?) => {::pastey::paste! {
+        $(const _: () = {
+            #[allow(unused_imports)]
+            use $crate::platform::mock::$category as _;
+        };)*
+
+        pub trait MockBackend {
+            $(fn [<handle_ $category>](
+                &self,
+                call: [<$category:camel Call>],
+            ) -> [<$category:camel Ret>] {
+                call.default_ret()
+            })+
+        }
+
+        impl MockBackend for PrintBackend {
+            $(fn [<handle_ $category>](
+                &self,
+                call: [<$category:camel Call>],
+            ) -> [<$category:camel Ret>] {
+                $crate::println!("{call:?}");
+                $crate::platform::DefaultBackend.[<handle_ $category>](call)
+            })+
+        }
+
+        impl<T> MockBackend for Fns<T> where T: $([<$category:camel Fns>] +)* {
+            $(fn [<handle_ $category>](
+                &self,
+                call: [<$category:camel Call>],
+            ) -> [<$category:camel Ret>] {
+                self.0.[<handle_ $category>](call)
+            })+
+        }
+    }};
 }
 
 mock_backend!(
-    MockAbsEnc,
-    MockAdi,
-    MockAiVision,
-    MockArm,
-    MockBattery,
-    MockCompetition,
-    MockController,
-    MockDevice,
-    MockDisplay,
-    MockDistance,
-    MockEvent,
-    MockFile,
-    MockGenericRadio,
-    MockGenericSerial,
-    MockGps,
-    MockImu,
-    MockLed,
-    MockLightTower,
-    MockMagnet,
-    MockMotor,
-    MockOptical,
-    MockPneumatic,
-    MockRange,
-    MockSerial,
-    MockSound,
-    MockSystem,
-    MockTask,
-    MockTimer,
-    MockTouch,
-    MockVision,
+    abs_enc,
+    adi,
+    ai_vision,
+    arm,
+    battery,
+    competition,
+    controller,
+    device,
+    display,
+    distance,
+    event,
+    file,
+    generic_radio,
+    generic_serial,
+    gps,
+    imu,
+    led,
+    light_tower,
+    magnet,
+    motor,
+    optical,
+    pneumatic,
+    range,
+    serial,
+    sound,
+    system,
+    task,
+    timer,
+    touch,
+    vision,
 );

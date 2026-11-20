@@ -22,7 +22,7 @@ pub struct V5_DeviceArmTipPosition {
 }
 
 mock! {
-    pub trait MockArm;
+    Arm:
     pub fn vexDeviceArmMoveTipCommandLinearAdv(
         device: V5_DeviceT,
         position: *mut V5_DeviceArmTipPosition,

@@ -51,7 +51,8 @@ extern crate alloc;
 bitflags! {
     /// The raw status bits returned by [`vex_sdk::vexCompetitionStatus`].
     ///
-    /// These flags contain all the data made available to user code by VEXos about the state of the match.
+    /// These flags contain all the data made available to user code by VEXos about the state of the
+    /// match.
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     pub struct CompetitionStatus: u32 {
         /// Robot is disabled by field control.

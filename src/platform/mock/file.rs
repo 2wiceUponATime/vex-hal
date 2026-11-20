@@ -36,7 +36,7 @@ c_enum! {
 pub type FIL = core::ffi::c_void;
 
 mock! {
-    pub trait MockFile;
+    File:
     pub fn vexFileMountSD() -> FRESULT;
     pub fn vexFileDirectoryGet(
         path: *const c_char,

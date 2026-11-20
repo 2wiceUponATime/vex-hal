@@ -6,7 +6,15 @@ use core::time::Duration;
 
 use snafu::{Snafu, ensure};
 
-use crate::{peripherals::adi::AdiPort, platform::*, time::LowResolutionTime};
+use crate::{
+    peripherals::{
+        adi::AdiPort,
+        controller::{Controller, ControllerId},
+        display::Display,
+    },
+    platform::*,
+    time::LowResolutionTime,
+};
 
 pub mod adi;
 pub mod ai_vision;
@@ -358,6 +366,14 @@ pub enum PortError {
 }
 
 pub struct Peripherals {
+    /// Brain display and touchscreen.
+    pub display: Display,
+
+    /// Primary ("Master") controller.
+    pub primary_controller: Controller,
+    /// Partner controller.
+    pub partner_controller: Controller,
+
     /// Smart Port 1 on the Brain.
     pub port_1: SmartPort,
     /// Smart Port 2 on the Brain.
@@ -439,6 +455,11 @@ impl Peripherals {
     pub unsafe fn new() -> Self {
         unsafe {
             Self {
+                display: Display::new(),
+
+                primary_controller: Controller::new(ControllerId::Primary),
+                partner_controller: Controller::new(ControllerId::Primary),
+
                 port_1: SmartPort::new(1),
                 port_2: SmartPort::new(2),
                 port_3: SmartPort::new(3),

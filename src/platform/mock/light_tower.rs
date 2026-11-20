@@ -7,7 +7,7 @@
 use crate::platform::V5_DeviceT;
 
 mock! {
-    pub trait MockLightTower;
+    LightTower:
     pub fn vexDeviceLightTowerBlinkSet(
         device: V5_DeviceT,
         select: u8,

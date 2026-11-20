@@ -9,7 +9,7 @@ use core::ffi::{c_char, c_int};
 use crate::platform::V5_DeviceT;
 
 mock! {
-    pub trait MockGenericRadio;
+    GenericRadio:
     pub fn vexDeviceGenericRadioConnection(
         device: V5_DeviceT,
         link_id: *mut c_char,

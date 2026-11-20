@@ -4,14 +4,14 @@
 [package]
 license = "MIT"
 name = "vex-hal"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [features]
 default = ["platform-v5"]
 platform-exp = []
 platform-v5 = ["dep:vex-sdk-jumptable", "dep:vex-sdk"]
-platform-mock = []
+platform-mock = ["dep:pastey"]
 
 [dependencies]
 async-task = { version = "4.7.1", default-features = false }
@@ -31,6 +31,7 @@ mint = "0.5.9"
 num-traits = { version = "0.2.19", default-features = false, features = [
   "libm",
 ] }
+pastey = { version = "0.2.3", optional = true }
 pin-project = "1.2.0"
 scopeguard = { version = "1.2.0", default-features = false }
 smart-leds-trait = "0.3.2"

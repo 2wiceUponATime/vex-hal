@@ -22,7 +22,7 @@ pub struct V5_DevicePneumaticCtrl {
 }
 
 mock! {
-    pub trait MockPneumatic;
+    Pneumatic:
     pub fn vexDevicePneumaticActuationStatusGet(
         device: V5_DeviceT,
         ac1: *mut u16,

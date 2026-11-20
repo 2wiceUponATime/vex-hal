@@ -81,8 +81,8 @@ pub struct AdiPort {
 
     /// The index of this port's associated [`AdiExpander`](super::expander::AdiExpander).
     ///
-    /// If this port is not associated with an [`AdiExpander`](super::expander::AdiExpander) it should
-    /// be set to `None`.
+    /// If this port is not associated with an [`AdiExpander`](super::expander::AdiExpander) it
+    /// should be set to `None`.
     expander_number: Option<u8>,
 }
 
@@ -99,7 +99,8 @@ impl AdiPort {
     /// hardware device. This violates Rust's borrow checker guarantees. Prefer using
     /// [`Peripherals`](super::Peripherals) to register devices if possible.
     ///
-    /// For vexide's docs on safely creating peripherals, see [this page](https://vexide.dev/docs/peripherals/).
+    /// For vexide's docs on safely creating peripherals, see
+    /// [this page](https://vexide.dev/docs/peripherals/).
     #[must_use]
     pub const unsafe fn new(number: u8, expander_number: Option<u8>) -> Self {
         Self {

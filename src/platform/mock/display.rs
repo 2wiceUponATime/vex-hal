@@ -31,7 +31,7 @@ pub struct v5_image {
 }
 
 mock! {
-    pub trait MockDisplay;
+    Display<'a>:
     /// Sets the color (encoded as RGB8) used for all future non-erasing display draws.
     pub fn vexDisplayForegroundColor(col: u32);
     /// Sets the color (encoded as RGB8) used for all future erasing display draws.
@@ -133,26 +133,26 @@ mock! {
     /// Draws a string of text to the display at a given line.
     ///
     /// Uses the current foreground color for the text itself, and the current background color if `bOpaque` is `true`.
-    pub fn vexDisplayVString(nLineNumber: i32, format: *const c_char, args: VaList);
+    pub fn vexDisplayVString<'a>(nLineNumber: i32, format: *const c_char, args: VaList<'a>);
     /// Draws a string of large-sized text to the display at a given line.
     ///
     /// Uses the current foreground color as the text color.
-    pub fn vexDisplayVBigString(nLineNumber: i32, format: *const c_char, args: VaList);
+    pub fn vexDisplayVBigString<'a>(nLineNumber: i32, format: *const c_char, args: VaList<'a>);
     /// Draws a string of center-justified text to the display at a given line.
     ///
     /// Uses the current foreground color as the text color.
-    pub fn vexDisplayVCenteredString(
+    pub fn vexDisplayVCenteredString<'a>(
         nLineNumber: i32,
         format: *const c_char,
-        args: VaList,
+        args: VaList<'a>,
     );
     /// Draws a string of large-sized, center-justified text to the display at a given line.
     ///
     /// Uses the current foreground color as the text color.
-    pub fn vexDisplayVBigCenteredString(
+    pub fn vexDisplayVBigCenteredString<'a>(
         nLineNumber: i32,
         format: *const c_char,
-        args: VaList,
+        args: VaList<'a>,
     );
     /// Moves a rectangular region of the screen `nLines` pixels upwards, without affecting
     /// portions of the screen outside the specified scroll region.
@@ -200,25 +200,25 @@ mock! {
         x2: i32,
         y2: i32,
     );
-    pub fn vexDisplayVPrintf(
+    pub fn vexDisplayVPrintf<'a>(
         xpos: i32,
         ypos: i32,
         bOpaque: i32,
         format: *const c_char,
-        args: VaList,
+        args: VaList<'a>,
     );
-    pub fn vexDisplayVStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
-    pub fn vexDisplayVBigStringAt(
+    pub fn vexDisplayVStringAt<'a>(xpos: i32, ypos: i32, format: *const c_char, args: VaList<'a>);
+    pub fn vexDisplayVBigStringAt<'a>(
         xpos: i32,
         ypos: i32,
         format: *const c_char,
-        args: VaList,
+        args: VaList<'a>,
     );
-    pub fn vexDisplayVSmallStringAt(
+    pub fn vexDisplayVSmallStringAt<'a>(
         xpos: i32,
         ypos: i32,
         format: *const c_char,
-        args: VaList,
+        args: VaList<'a>,
     );
 }
 

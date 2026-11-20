@@ -39,7 +39,7 @@ c_enum! {
 }
 
 mock! {
-    pub trait MockAdi;
+    Adi:
     pub fn vexDeviceAdiPortConfigSet(
         device: V5_DeviceT,
         port: u32,

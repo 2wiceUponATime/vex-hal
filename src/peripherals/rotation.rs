@@ -253,7 +253,8 @@ impl RotationSensor {
         let mut time_ms = interval
             .as_millis()
             .max(Self::MIN_DATA_INTERVAL.as_millis()) as u32;
-        time_ms -= time_ms % 5; // Rate is in increments of 5ms - not sure if this is necessary, but PROS does it.
+        // Rate is in increments of 5ms - not sure if this is necessary, but PROS does it.
+        time_ms -= time_ms % 5;
 
         unsafe { vexDeviceAbsEncDataRateSet(self.device, time_ms) }
 

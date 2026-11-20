@@ -9,7 +9,7 @@
 use crate::platform::V5_DeviceT;
 
 mock! {
-    pub trait MockRange;
+    Range:
     /// Rangefinder/Lidar - actual API to be determined
     pub fn vexDeviceRangeValueGet(device: V5_DeviceT) -> i32;
 }
