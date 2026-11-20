@@ -65,7 +65,7 @@ impl AdiRangeFinder {
     /// # Panics
     ///
     /// - If the top and bottom ports originate from different
-    ///   [`AdiExpander`](crate::smart::expander::AdiExpander)s.
+    ///   [`AdiExpander`](crate::peripherals::expander::AdiExpander)s.
     /// - If the output port is not odd (A, C, E, G).
     /// - If the input port is not the next after the output port.
     #[must_use]
@@ -113,7 +113,7 @@ impl AdiRangeFinder {
     /// # Errors
     ///
     /// These errors are only returned if the device is plugged into an
-    /// [`AdiExpander`](crate::smart::expander::AdiExpander).
+    /// [`AdiExpander`](crate::peripherals::expander::AdiExpander).
     ///
     /// - A [`PortError::Disconnected`] error is returned if no expander was connected to the port.
     /// - A [`PortError::IncorrectDevice`] error is returned if a device other than an expander was

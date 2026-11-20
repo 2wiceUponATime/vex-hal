@@ -6,7 +6,7 @@
 
 use core::ffi::{VaList, c_char};
 
-use crate::platform::jump_table;
+use crate::platform::{jump_table, variadic};
 
 /// A decoded image written to by VEXos.
 #[repr(C, packed)]
@@ -221,4 +221,20 @@ jump_table! {
         format: *const c_char,
         args: VaList,
     );
+}
+
+#[cfg(any(feature = "platform-exp", feature = "platform-mock"))]
+variadic! {
+    pub fn vexDisplayString(
+        nLineNumber: i32,
+        format: *const core::ffi::c_char,
+        ...
+    ) = vexDisplayVString;
+    pub fn vexDisplayPrintf(
+        xpos: i32,
+        ypos: i32,
+        bOpaque: i32,
+        format: *const core::ffi::c_char,
+        ...
+    ) = vexDisplayVPrintf;
 }

@@ -40,9 +40,12 @@
 //!
 //! Most devices are created using a `new` function that takes ownership of an [`AdiPort`], along
 //! with any other device-specific parameters. All devices are thread-safe due to being singletons,
-//! and can only be safely constructed using the [`Peripherals`](super::Peripherals) API.
+//! and can only be safely constructed using the [`Peripherals`] API.
 //!
 //! Specific info for using each device is available in their respective modules below.
+//!
+//! [`Peripherals`]: super::Peripherals
+//! [`AdiExpander`]: super::expander::AdiExpander
 
 use core::time::Duration;
 
@@ -51,8 +54,19 @@ use crate::{
     platform::*,
 };
 
+pub mod accelerometer;
+pub mod addrled;
+pub mod analog;
+pub mod digital;
 pub mod encoder;
+pub mod gyroscope;
+pub mod light_sensor;
+pub mod line_tracker;
+pub mod motor;
+pub mod potentiometer;
+pub mod pwm;
 pub mod range_finder;
+pub mod servo;
 
 /// Update rate for all ADI devices and ports.
 pub const ADI_UPDATE_INTERVAL: Duration = Duration::from_millis(10);
@@ -65,9 +79,9 @@ pub struct AdiPort {
     /// Ports are numbered starting from 1.
     number: u8,
 
-    /// The index of this port's associated [`AdiExpander`](super::smart::AdiExpander).
+    /// The index of this port's associated [`AdiExpander`](super::expander::AdiExpander).
     ///
-    /// If this port is not associated with an [`AdiExpander`](super::smart::AdiExpander) it should
+    /// If this port is not associated with an [`AdiExpander`](super::expander::AdiExpander) it should
     /// be set to `None`.
     expander_number: Option<u8>,
 }
@@ -103,7 +117,7 @@ impl AdiPort {
     }
 
     /// Returns the index of this port's associated
-    /// [`AdiExpander`](super::smart::expander::AdiExpander) Smart Port, or `None` if this port is
+    /// [`AdiExpander`](super::expander::AdiExpander) Smart Port, or `None` if this port is
     /// not associated with an expander.
     #[must_use]
     pub const fn expander_number(&self) -> Option<u8> {
@@ -147,7 +161,7 @@ impl AdiPort {
     /// # Errors
     ///
     /// These errors are only returned if the device is plugged into an
-    /// [`AdiExpander`](crate::smart::expander::AdiExpander).
+    /// [`AdiExpander`](crate::peripherals::expander::AdiExpander).
     ///
     /// - A [`PortError::Disconnected`] error is returned if no expander was connected to the port.
     /// - A [`PortError::IncorrectDevice`] error is returned if a device other than an expander was
@@ -211,7 +225,7 @@ pub trait AdiDevice<const N: usize> {
     #[must_use]
     fn port_numbers(&self) -> [u8; N];
 
-    /// Returns the port number of the [`SmartPort`](crate::smart::SmartPort) this device's expander
+    /// Returns the port number of the [`SmartPort`](crate::peripherals::SmartPort) this device's expander
     /// is connected to, or [`None`] if the device is plugged into an onboard ADI port.
     ///
     /// Ports are numbered starting from 1.
@@ -283,7 +297,7 @@ pub enum AdiDeviceType {
 
     /// Quadrature Encoder
     ///
-    /// This corresponds to the [`AdiEncoder`] device.
+    /// This corresponds to the [`AdiEncoder`](encoder::AdiEncoder) device.
     Encoder,
 
     /// Ultrasonic Sensor/Sonar

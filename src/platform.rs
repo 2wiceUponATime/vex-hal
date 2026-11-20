@@ -4,6 +4,7 @@
 
 #[cfg(feature = "platform-exp")]
 mod exp;
+
 #[cfg(feature = "platform-exp")]
 pub use exp::*;
 
@@ -53,9 +54,30 @@ macro_rules! jump_table {
 }
 
 #[cfg(any(feature = "platform-exp", feature = "platform-mock"))]
+macro_rules! variadic {
+    (
+        $(
+            $(#[$attr:meta])*
+            $vis:vis fn $name:ident($($arg:ident: $ty:ty,)* ... $(,)?) $(-> $ret:ty)? = $inner:ident;
+        )*
+    ) => {
+        $(
+            $(#[$attr])*
+            #[allow(non_snake_case, clippy::too_many_arguments)]
+            /// # Safety
+            /// Calls to jumptable functions are unsafe because jumptable functions are owned by
+            /// VEXos and we cannot guarantee their safety.
+            $vis unsafe extern "C" fn $name($($arg: $ty,)* args: ...) $(-> $ret)? {
+                unsafe { $inner($($arg,)* args) }
+            }
+        )*
+    };
+}
+
+#[cfg(any(feature = "platform-exp", feature = "platform-mock"))]
 macro_rules! c_enum {
     {
-        $(#[$meta:meta])*
+        $(#[$attr:meta])*
         $vis:vis struct $name:ident: $inner:ty {
             $(
                 $(#[$variant_meta:meta])*
@@ -65,7 +87,7 @@ macro_rules! c_enum {
     } => {
         #[repr(transparent)]
         #[derive(Default, Clone, Copy, PartialEq, Eq)]
-        $(#[$meta])*
+        $(#[$attr])*
         #[allow(non_camel_case_types)]
         $vis struct $name(pub $inner);
 
@@ -89,10 +111,10 @@ macro_rules! c_enum {
 }
 
 #[cfg(feature = "platform-exp")]
-use {c_enum, jump_table};
+use {c_enum, jump_table, variadic};
 
 #[cfg(feature = "platform-mock")]
-use c_enum;
+use {c_enum, variadic};
 
 pub const STDIO_CHANNEL: u32 = 1;
 /// Constant on all platforms
@@ -102,12 +124,12 @@ pub const V5_MAX_DEVICE_PORTS: usize = 32;
 macro_rules! platform_local {
     (
         $(
-            $(#[$meta:meta])*
+            $(#[$attr:meta])*
             $vis:vis fn $name:ident() -> &$t:ty = $init:expr;
         )*
     ) => {
         $(
-            $(#[$meta])*
+            $(#[$attr])*
             $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
                 static S: $crate::single_threaded::SingleThreaded<$t> = unsafe {
                     $crate::single_threaded::SingleThreaded::new($init)
@@ -121,12 +143,12 @@ macro_rules! platform_local {
 macro_rules! platform_local {
     (
         $(
-            $(#[$meta:meta])*
+            $(#[$attr:meta])*
             $vis:vis fn $name:ident() -> &$t:ty = $init:expr;
         )*
     ) => {
         $(
-            $(#[$meta])*
+            $(#[$attr])*
             $vis fn $name<R>(f: impl FnOnce(&$t) -> R) -> R {
                 extern crate std;
                 std::thread_local! {

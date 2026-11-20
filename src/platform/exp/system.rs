@@ -120,3 +120,16 @@ pub unsafe fn vexScratchMemoryPtr(ptr: *mut *mut c_void) -> i32 {
     unsafe { *ptr = scratch };
     size
 }
+
+/// Returns the current VEXos firmware version, encoded as big-endian bytes.
+///
+/// # Safety
+///
+/// This function is sound to call; the version word lives at a fixed, aligned, always-mapped
+/// offset in the jump table. It is marked `unsafe` only for signature parity with `vex-sdk`.
+#[allow(non_snake_case)]
+pub unsafe fn vexSystemVersion() -> u32 {
+    // SAFETY: the version word lives at a fixed, aligned offset in the jump
+    // table, which is always mapped and readable.
+    unsafe { core::ptr::read_volatile((JUMP_TABLE_START + 0x1000) as *const u32) }
+}

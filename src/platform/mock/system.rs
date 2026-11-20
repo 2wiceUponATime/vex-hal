@@ -81,4 +81,6 @@ mock! {
     pub fn vexSystemSWInterrupt();
     pub fn vexSystemDataAbortInterrupt();
     pub fn vexSystemPrefetchAbortInterrupt();
+    /// Returns the current VEXos firmware version, encoded as big-endian bytes.
+    pub fn vexSystemVersion() -> u32;
 }

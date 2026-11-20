@@ -34,8 +34,8 @@ pub fn _print(args: fmt::Arguments) {
 
 /// Prints to the standard output.
 ///
-/// Equivalent to the [`println!`] macro except that a newline is not printed at the end of the
-/// message.
+/// Equivalent to the [`println!`](crate::println) macro except that a newline is not printed at
+/// the end of the message.
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => {

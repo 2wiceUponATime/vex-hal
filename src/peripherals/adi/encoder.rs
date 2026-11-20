@@ -53,8 +53,8 @@
 //! | Update Rate         | 10ms             | 10ms                               |
 //! | Shaft Compatibility | Low Strength     | Low Strength, High Strength        |
 //!
-//! [`RotationSensor`]: crate::smart::rotation::RotationSensor
-//! [`SmartPort`]: crate::smart::SmartPort
+//! [`RotationSensor`]: crate::peripherals::rotation::RotationSensor
+//! [`SmartPort`]: crate::peripherals::SmartPort
 
 use crate::{
     math::Angle,
@@ -87,7 +87,7 @@ impl<const TICKS_PER_REVOLUTION: u32> AdiEncoder<TICKS_PER_REVOLUTION> {
     /// # Panics
     ///
     /// - If the top and bottom ports originate from different
-    ///   [`AdiExpander`](crate::smart::expander::AdiExpander)s.
+    ///   [`AdiExpander`](crate::peripherals::expander::AdiExpander)s.
     /// - If the ports are not directly next to each other or in an invalid position (one port is
     ///   not in A, C, E, G and the other is not in in B, D, F).
     #[must_use]
@@ -136,7 +136,7 @@ impl<const TICKS_PER_REVOLUTION: u32> AdiEncoder<TICKS_PER_REVOLUTION> {
     /// # Errors
     ///
     /// These errors are only returned if the device is plugged into an
-    /// [`AdiExpander`](crate::smart::expander::AdiExpander).
+    /// [`AdiExpander`](crate::peripherals::expander::AdiExpander).
     ///
     /// - A [`PortError::Disconnected`] error is returned if no expander was connected to the port.
     /// - A [`PortError::IncorrectDevice`] error is returned if a device other than an expander was
@@ -161,7 +161,7 @@ impl<const TICKS_PER_REVOLUTION: u32> AdiEncoder<TICKS_PER_REVOLUTION> {
     /// # Errors
     ///
     /// These errors are only returned if the device is plugged into an
-    /// [`AdiExpander`](crate::smart::expander::AdiExpander).
+    /// [`AdiExpander`](crate::peripherals::expander::AdiExpander).
     ///
     /// - A [`PortError::Disconnected`] error is returned if no expander was connected to the port.
     /// - A [`PortError::IncorrectDevice`] error is returned if a device other than an expander was
@@ -185,7 +185,7 @@ impl<const TICKS_PER_REVOLUTION: u32> AdiEncoder<TICKS_PER_REVOLUTION> {
     /// # Errors
     ///
     /// These errors are only returned if the device is plugged into an
-    /// [`AdiExpander`](crate::smart::expander::AdiExpander).
+    /// [`AdiExpander`](crate::peripherals::expander::AdiExpander).
     ///
     /// - A [`PortError::Disconnected`] error is returned if no expander was connected to the port.
     /// - A [`PortError::IncorrectDevice`] error is returned if a device other than an expander was

@@ -31,7 +31,9 @@ mint = "0.5.9"
 num-traits = { version = "0.2.19", default-features = false, features = [
   "libm",
 ] }
+pin-project = "1.2.0"
 scopeguard = { version = "1.2.0", default-features = false }
+smart-leds-trait = "0.3.2"
 snafu = { version = "0.9.2", default-features = false, features = [
   "alloc",
   "rust_1_81",

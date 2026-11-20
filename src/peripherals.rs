@@ -10,6 +10,9 @@ use crate::{peripherals::adi::AdiPort, platform::*, time::LowResolutionTime};
 
 pub mod adi;
 pub mod ai_vision;
+pub mod battery;
+pub mod controller;
+pub mod display;
 pub mod distance;
 pub mod electromagnet;
 pub mod expander;

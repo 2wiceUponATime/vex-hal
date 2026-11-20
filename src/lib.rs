@@ -29,12 +29,14 @@ mod allocator;
 mod single_threaded;
 
 pub mod color;
+pub mod competition;
 pub mod io;
 pub mod math;
 pub mod peripherals;
 pub mod platform;
 pub mod prelude;
 pub mod runtime;
+pub mod system;
 pub mod thread;
 pub mod time;
 
