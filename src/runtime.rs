@@ -21,6 +21,7 @@ pub mod sync {
         Barrier, BarrierWaitResult, Mutex, MutexGuard, OnceCell, RwLock, RwLockReadGuard,
         RwLockWriteGuard,
     };
+    pub use futures_util::{join, select_biased, try_join};
 }
 
 /// Blocks the current task until a return value can be extracted from the provided future.
