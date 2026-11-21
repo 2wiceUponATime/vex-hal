@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
+#[cfg(feature = "platform-mock")]
+extern crate std;
+
 use no_std_io::io::{self, Write};
 
 use crate::{
@@ -228,10 +231,20 @@ macro_rules! println {
 pub use println;
 
 #[macro_export]
+#[cfg(not(feature = "platform-mock"))]
 /// Prints a message to the standard output.
 macro_rules! print {
     ($($arg:tt)*) => {{
 		$crate::io::__print(format_args!($($arg)*))
+    }};
+}
+#[macro_export]
+#[cfg(feature = "platform-mock")]
+/// Prints a message to the standard output.
+macro_rules! print {
+    ($($arg:tt)*) => {{
+        extern crate std;
+		std::print!($($arg)*)
     }};
 }
 pub use print;

@@ -11,9 +11,9 @@ pub mod task;
 
 /// Synchronization primitives for async code.
 ///
-/// vexide programs often use async [tasks](crate::task) to run multiple operations concurrently.
-/// These primitives provide methods for tasks to safely communicate with each other and share data.
-/// This is vexide's async equivalent to the [`std::sync` module].
+/// vexide programs often use async [tasks](crate::runtime::task) to run multiple operations
+/// concurrently. These primitives provide methods for tasks to safely communicate with each
+/// other and share data. This is vex-hal's async equivalent to the [`std::sync` module].
 ///
 /// [`std::sync` module]: https://doc.rust-lang.org/stable/std/sync/index.html
 pub mod sync {

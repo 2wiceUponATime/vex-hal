@@ -191,13 +191,13 @@ impl OpenOptions {
     /// with their [`io::ErrorKind`]. The mapping to [`io::ErrorKind`]s is not
     /// part of the compatibility contract of the function.
     ///
-    /// * [`NotFound`]: The specified file does not exist and neither `create`
-    ///   or `create_new` is set.
-    /// * [`AlreadyExists`]: `create_new` was specified and the file already
-    ///   exists.
-    /// * [`InvalidInput`]: Invalid combinations of open options (read/write
-    ///   access both specified, truncate without write access, no access mode
-    ///   set, etc.).
+    /// * [`NotFound`](io::ErrorKind::NotFound): The specified file does not exist and neither
+    ///   `create` nor `create_new` is set.
+    /// * [`AlreadyExists`](io::ErrorKind::AlreadyExists): `create_new` was specified and the file
+    ///   already exists.
+    /// * [`InvalidInput`](io::ErrorKind::InvalidInput): Invalid combinations of open options
+    ///   (read/write access both specified, truncate without write access, no access mode set,
+    ///   etc.).
     ///
     /// The following errors don't match any existing [`io::ErrorKind`] at the moment:
     /// * Filesystem-level errors: full disk, write permission
