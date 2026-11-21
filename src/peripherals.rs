@@ -458,7 +458,7 @@ impl Peripherals {
                 display: Display::new(),
 
                 primary_controller: Controller::new(ControllerId::Primary),
-                partner_controller: Controller::new(ControllerId::Primary),
+                partner_controller: Controller::new(ControllerId::Partner),
 
                 port_1: SmartPort::new(1),
                 port_2: SmartPort::new(2),

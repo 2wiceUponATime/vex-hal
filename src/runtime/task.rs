@@ -49,8 +49,6 @@
 //! effectively requires the use of a *synchronization primitive* like a `Mutex` or `RwLock` to
 //! manage safe access to shared state across multiple running tasks.
 
-extern crate alloc;
-
 use alloc::rc::Rc;
 
 use crate::runtime::{executor::with_executor, local::TaskLocalStorage};

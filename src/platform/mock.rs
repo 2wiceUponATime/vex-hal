@@ -195,6 +195,8 @@ pub use timer::*;
 pub use touch::*;
 pub use vision::*;
 
+pub const SIG_MAGIC: u32 = 0x4b434f4d;
+
 pub fn exit() -> ! {
     std::process::exit(0);
 }

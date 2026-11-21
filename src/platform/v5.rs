@@ -8,6 +8,8 @@ pub use vex_sdk::*;
 
 extern crate vex_sdk_jumptable;
 
+pub const SIG_MAGIC: u32 = V5_SIG_MAGIC;
+
 pub fn exit() -> ! {
     unsafe { vexSystemExitRequest() };
     // Keep yielding to VEXos while it tears us down.

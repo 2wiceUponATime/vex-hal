@@ -23,8 +23,6 @@
 //! has Wi-Fi Direct and can act as web server, allowing a live video feed of the camera from any
 //! computer equipped with a browser and Wi-Fi.
 
-extern crate alloc;
-
 use core::time::Duration;
 
 use alloc::vec::Vec;

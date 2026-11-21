@@ -7,8 +7,6 @@
 //! This module allows you to read from the buttons and joysticks on the controller and write to the
 //! controller's display.
 
-extern crate alloc;
-
 use core::{cell::RefCell, ffi::CStr, task::Poll, time::Duration};
 
 use alloc::{

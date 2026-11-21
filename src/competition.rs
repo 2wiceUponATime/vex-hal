@@ -46,8 +46,6 @@ use pin_project::pin_project;
 
 use crate::platform::*;
 
-extern crate alloc;
-
 bitflags! {
     /// The raw status bits returned by [`vex_sdk::vexCompetitionStatus`].
     ///

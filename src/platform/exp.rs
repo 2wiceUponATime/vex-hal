@@ -73,6 +73,7 @@ pub use touch::*;
 pub use vision::*;
 
 pub const JUMP_TABLE_START: usize = 0x301fc000;
+pub const SIG_MAGIC: u32 = 0x45585658;
 
 pub fn exit() -> ! {
     unsafe { vexSystemExitRequest() };

@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: 2026 Gabe Schrock
 // SPDX-License-Identifier: MIT
 
-extern crate alloc;
-
 use alloc::collections::BinaryHeap;
 use core::task::Waker;
 

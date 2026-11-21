@@ -4,9 +4,9 @@
 
 //! VEXos System Functions
 
-use core::ffi::VaList;
-use core::ffi::c_char;
-use core::ffi::c_void;
+use core::ffi::{VaList, c_char, c_void};
+
+use crate::platform::SIG_MAGIC;
 
 #[repr(C)]
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
@@ -30,6 +30,33 @@ pub struct date {
     pub da_day: u8,
     /// Month (1 = Jan)
     pub da_mon: u8,
+}
+
+#[repr(C, packed)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub struct vcodesig {
+    /// Magic
+    pub magic: u32,
+
+    /// Program type
+    pub r#type: u32,
+
+    /// Program originator
+    pub owner: u32,
+
+    /// Program options
+    pub options: u32,
+}
+
+impl Default for vcodesig {
+    fn default() -> Self {
+        vcodesig {
+            magic: SIG_MAGIC,
+            r#type: Default::default(),
+            owner: Default::default(),
+            options: Default::default(),
+        }
+    }
 }
 
 mock! {

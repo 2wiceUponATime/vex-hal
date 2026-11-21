@@ -21,23 +21,30 @@
 
 #![no_std]
 
+#[macro_use]
+extern crate alloc;
+
 pub use vex_hal_macros::main;
 
 #[cfg(not(feature = "platform-mock"))]
 mod allocator;
 #[cfg(not(feature = "platform-mock"))]
 mod single_threaded;
+#[cfg(not(feature = "platform-mock"))]
+mod thread;
 
+pub mod backtrace;
 pub mod color;
 pub mod competition;
+pub mod fs;
 pub mod io;
 pub mod math;
 pub mod peripherals;
 pub mod platform;
 pub mod prelude;
+pub mod program;
 pub mod runtime;
 pub mod system;
-pub mod thread;
 pub mod time;
 
 unsafe extern "C" {
@@ -142,6 +149,9 @@ extern "C" fn main() {
 #[cfg(not(feature = "platform-mock"))]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
+    use crate::backtrace::Backtrace;
+
     println!("{info}");
+    println!("{}", Backtrace::capture());
     platform::exit();
 }

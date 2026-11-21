@@ -28,8 +28,6 @@
 //! may be created without the AI Vision utility, though uploading color signatures with VEX's AI
 //! Vision Utility over USB is still an option.
 
-extern crate alloc;
-
 use core::{
     iter::{Copied, Flatten},
     slice,

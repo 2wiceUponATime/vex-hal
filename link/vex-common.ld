@@ -5,6 +5,9 @@ SPDX-License-Identifier: MIT
 
 ENTRY(_boot)
 
+/* The code signature is emitted directly by the linker. `PROVIDE` lets any of
+   these fields be overridden at link time, e.g.
+   `-C link-arg=--defsym=__vcodesig_options=0x123`. */
 PROVIDE(__vcodesig_type    = 0);
 PROVIDE(__vcodesig_owner   = 2);
 PROVIDE(__vcodesig_options = 0);

@@ -10,7 +10,7 @@ use core::{
     time::Duration,
 };
 
-use crate::platform::{vexSystemPowerupTimeGet, vexSystemTimeGet};
+use crate::platform::{vexSystemHighResTimeGet, vexSystemPowerupTimeGet, vexSystemTimeGet};
 
 const fn duration_to_micros(d: Duration) -> Option<u64> {
     let micros = d.as_micros();
@@ -124,6 +124,28 @@ impl Sub for Instant {
     fn sub(self, rhs: Instant) -> Duration {
         self.duration_since(rhs)
     }
+}
+
+/// Returns the duration that the brain has been powered on.
+///
+/// # Precision
+///
+/// The returned [`Duration`] has a precision of 1 microsecond.
+#[must_use]
+pub fn system_uptime() -> Duration {
+    Duration::from_micros(unsafe { vexSystemPowerupTimeGet() })
+}
+
+/// Returns the duration that the brain's user processor has been running.
+///
+/// This is effectively the time since the current program was started.
+///
+/// # Precision
+///
+/// The returned [`Duration`] has a precision of 1 microsecond.
+#[must_use]
+pub fn user_uptime() -> Duration {
+    Duration::from_micros(unsafe { vexSystemHighResTimeGet() })
 }
 
 /// A timestamp recorded by the Brain's low-resolution private timer.

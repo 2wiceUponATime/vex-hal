@@ -9,8 +9,6 @@
 //! The [`Fill`] trait can be used to draw filled in shapes to the display and the [`Stroke`] trait
 //! can be used to draw the outlines of shapes.
 
-extern crate alloc;
-
 use core::{
     ffi::{CStr, c_char},
     time::Duration,

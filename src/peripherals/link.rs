@@ -27,8 +27,6 @@
 //!
 //! For further information, see <https://www.vexforum.com/t/vexlink-documentaton/84538>
 
-extern crate alloc;
-
 use core::time::Duration;
 
 use alloc::ffi::CString;

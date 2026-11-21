@@ -117,7 +117,6 @@ use {c_enum, jump_table, variadic};
 #[cfg(feature = "platform-mock")]
 use {c_enum, variadic};
 
-pub const STDIO_CHANNEL: u32 = 1;
 /// Constant on all platforms
 pub const V5_MAX_DEVICE_PORTS: usize = 32;
 

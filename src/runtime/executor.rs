@@ -12,8 +12,6 @@
 //! Task-locals can be declared using the [`task_local`](crate::task_local) macro, which creates a
 //! [`LocalKey`](super::local::LocalKey) with the same name that can be used to access the local.
 
-extern crate alloc;
-
 use alloc::{collections::VecDeque, rc::Rc, sync::Arc};
 use core::{
     cell::RefCell,
