@@ -4,8 +4,6 @@
 #![no_std]
 #![no_main]
 
-extern crate std;
-
 use vex_hal::prelude::*;
 
 #[vex_hal::main]
